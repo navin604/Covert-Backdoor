@@ -10,16 +10,12 @@ def shutdown():
 
 
 def process_arg(arg) -> Union[bool, str]:
-    if not arg or len(arg) > 2:
+    if len(arg) != 1:
         shutdown()
     elif arg[0] == "SERVER":
         return False
     elif arg[0] == "CLIENT":
-        try:
-            ip = arg[1]
-        except:
-            sys.exit("Must specify IP")
-        return ip
+        return True
     else:
         shutdown()
 
@@ -29,15 +25,14 @@ def run_server() -> None:
     b.start()
 
 
-def run_client(ip: str) -> None:
-    c = Client(ip)
+def run_client() -> None:
+    c = Client()
     c.start()
 
 
 def main() -> None:
-    ip = process_arg(sys.argv[1:])
-    if ip:
-        run_client(ip)
+    if process_arg(sys.argv[1]):
+        run_client()
     else:
         run_server()
 
