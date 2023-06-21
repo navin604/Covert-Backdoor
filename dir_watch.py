@@ -10,19 +10,22 @@ file = "ran.txt"
 class EventHandler(FileSystemEventHandler):
     def on_created(self, event):
         #Watch for creation of specific file
-        print(event)
         file_ = event.src_path.split("/")[-1]
         if file_ == file:
             print(f"File created: {file}")
             print("--------------------------------------------------")
         print("--------------------------------------------------")
     def on_modified(self, event):
-        print(event)
         file_ = event.src_path.split("/")[-1]
         if file_ == file:
             print(f"File modified: {file}")
             print("--------------------------------------------------")
         print("--------------------------------------------------")
+
+    def on_moved(self, event):
+
+
+    def on_deleted(self, event):
 
 def search(file: str):
     # Search for file and see if it exists
