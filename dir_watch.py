@@ -3,17 +3,21 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 import time
 
+file = "ran.txt"
+
 class EventHandler(FileSystemEventHandler):
     def on_created(self, event):
-        print("FIle created")
         print(event)
+        file = event.src_path.split("/")[-1]
+        print(f"File created: {file}")
+        print("--------------------------------------------------")
 
 
 def main():
     if sys.argv[1] == "watch":
         event_handler = EventHandler()
         observer = Observer()
-        observer.schedule(event_handler, "./tes.txt", recursive=True)
+        observer.schedule(event_handler, "./test", recursive=True)
         observer.start()
         try:
             while True:
