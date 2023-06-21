@@ -15,16 +15,17 @@ class EventHandler(FileSystemEventHandler):
         if file_ == file:
             print(f"File created: {file}")
             print("--------------------------------------------------")
-
+        print("--------------------------------------------------")
     def on_modified(self, event):
         print(event)
         file_ = event.src_path.split("/")[-1]
         if file_ == file:
             print(f"File modified: {file}")
             print("--------------------------------------------------")
-
+        print("--------------------------------------------------")
 
 def search(file: str):
+    # Search for file and see if it exists
     file_exists = exists(file)
     if file_exists: print("Exists")
     else: print("Not exist my mans")
