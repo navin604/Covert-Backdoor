@@ -91,7 +91,7 @@ class Client:
     def filter_packets(self, packet) -> None:
         try:
             msg = packet[UDP].load.decode()
-            if UDP in packet and packet[UDP].dport == self.recv_portport and msg.startswith(self.flag_begin) \
+            if UDP in packet and packet[UDP].dport == self.recv_port and msg.startswith(self.flag_begin) \
                     and msg.endswith(self.flag_close):
                 self.process_packets(msg)
         except:
