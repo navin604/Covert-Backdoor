@@ -44,7 +44,7 @@ class Client:
         with open('config.yaml', 'r') as f:
             config = yaml.safe_load(f)
 
-        self.self.target_ip = config['attacker']['target']
+        self.target_ip = config['attacker']['target']
         self.recv_port = config['attacker']['recv_port']
         self.send_port = config['attacker']['send_port']
         self.proto = config['attacker']['proto']
