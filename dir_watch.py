@@ -8,9 +8,10 @@ file = "ran.txt"
 class EventHandler(FileSystemEventHandler):
     def on_created(self, event):
         print(event)
-        file = event.src_path.split("/")[-1]
-        print(f"File created: {file}")
-        print("--------------------------------------------------")
+        file_ = event.src_path.split("/")[-1]
+        if file_ == file:
+            print(f"File created: {file}")
+            print("--------------------------------------------------")
 
 
 def main():
