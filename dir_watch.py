@@ -2,17 +2,32 @@ import sys
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 import time
+from os.path import exists
+
 
 file = "ran.txt"
 
 class EventHandler(FileSystemEventHandler):
     def on_created(self, event):
+        #Watch for creation of specific file
         print(event)
         file_ = event.src_path.split("/")[-1]
         if file_ == file:
             print(f"File created: {file}")
             print("--------------------------------------------------")
 
+    def on_modified(self, event):
+        print(event)
+        file_ = event.src_path.split("/")[-1]
+        if file_ == file:
+            print(f"File modified: {file}")
+            print("--------------------------------------------------")
+
+
+def search(file: str):
+    file_exists = exists(file)
+    if file_exists: print("Exists")
+    else: print("Not exist my mans")
 
 def main():
     if sys.argv[1] == "watch":
@@ -26,8 +41,10 @@ def main():
         except KeyboardInterrupt:
             observer.stop()
             observer.join()
-    else:
-        pass
+
+    if sys.argv[1] == "search":
+        search("./test/poo.txt")
+
 
 if __name__ == "__main__":
     main()
