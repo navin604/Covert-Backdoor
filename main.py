@@ -10,11 +10,11 @@ def shutdown():
 
 
 def process_arg(arg) -> Union[bool, str]:
-    if len(arg) != 1:
+    if len(arg) != 2:
         shutdown()
-    elif arg[0] == "SERVER":
+    elif arg[1] == "SERVER":
         return False
-    elif arg[0] == "CLIENT":
+    elif arg[1] == "CLIENT":
         return True
     else:
         shutdown()
@@ -31,7 +31,7 @@ def run_client() -> None:
 
 
 def main() -> None:
-    if process_arg(sys.argv[1]):
+    if process_arg(sys.argv):
         run_client()
     else:
         run_server()
