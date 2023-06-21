@@ -55,16 +55,14 @@ class Client:
 
     def prepare_msg(self, cmd: str) -> str:
         cipher = self.generate_cipher()
+        cmd = self.flag_begin + cmd + self.flag_close
         encrypted_data = self.encrypt_data(cipher, cmd)
         # Convert the encrypted string to bytes
-
-
         print(f"Encrypted format: {encrypted_data}")
         hex_str = self.get_hex_string(encrypted_data)
-        msg = self.flag_begin + hex_str + self.flag_close
-        print(f"Added flags, sending: {msg}")
+        print(f"Added flags, sending: {hex_str}")
         print("--------------------------------------------------------------")
-        return msg
+        return hex_str
 
     def create_thread(self):
         x = Thread(target=self.sniff_init)
@@ -83,10 +81,6 @@ class Client:
         decrypted_msg = self.decrypt_data(stripped_msg)
         print(f"{decrypted_msg}")
         self.set_check()
-
-
-
-
 
     def filter_packets(self, packet) -> None:
         try:
