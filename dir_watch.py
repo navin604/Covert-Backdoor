@@ -22,9 +22,6 @@ class EventHandler(FileSystemEventHandler):
             print("--------------------------------------------------")
         print("--------------------------------------------------")
 
-    def on_moved(self, event):
-        print(f"{event.src_path} has moved to {event.dest_path}")
-
     def on_deleted(self, event):
         print(f"{event.src_path} has been deleted!")
 
