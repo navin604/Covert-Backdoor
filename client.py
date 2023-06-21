@@ -12,7 +12,7 @@ import yaml
 
 class Client:
     def __init__(self):
-        print(f"Client has been initiated.\nTarget: {ip}")
+        print(f"Client has been initiated.")
         print("--------------------------------------------------------------")
         self.target_ip = ""
         self.key = b'\xac\x19\x08\xf8\x80uo\x0c5\xcb\x82_\xc9\xc0\xdc4Z=\xbf\x19\xf0O\xfa\x94\x0fW\x95\xaf=\xe9U\t'
