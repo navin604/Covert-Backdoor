@@ -73,7 +73,7 @@ class Client:
 
     def sniff_init(self):
         try:
-            sniff(filter="udp", prn=lambda p: self.filter_packets(p), store=False)
+            sniff(filter=self.proto, prn=lambda p: self.filter_packets(p), store=False)
         except PermissionError:
             print("Permission error! Run as sudo or admin!")
             sys.exit()
