@@ -78,18 +78,24 @@ class Client:
 
     def process_packets(self, msg: str):
         stripped_msg = msg.strip(self.flag_begin).rstrip(self.flag_close)
-        decrypted_msg = self.decrypt_data(stripped_msg)
-        print(f"{decrypted_msg}")
+        print(f"{stripped_msg}")
         self.set_check()
 
     def filter_packets(self, packet) -> None:
         try:
             msg = packet[UDP].load.decode()
-            if UDP in packet and packet[UDP].dport == self.recv_port and msg.startswith(self.flag_begin) \
-                    and msg.endswith(self.flag_close):
-                self.process_packets(msg)
+            if UDP in packet and packet[UDP].dport == self.recv_port:
+                val = self.authenticate_packet(msg, packet)
+                if val:
+                    self.process_packets(val)
         except:
             return
+
+    def authenticate_packet(self, data: str, packet) -> str:
+        decrypted_msg = self.decrypt_data(data)
+        if decrypted_msg.startswith(self.flag_begin) and decrypted_msg.endswith(self.flag_close):
+            print(f"Received authenticated packet: {decrypted_msg}")
+            return decrypted_msg
 
     def craft_packet(self, msg: str):
         ip = IP(dst=self.target_ip)
