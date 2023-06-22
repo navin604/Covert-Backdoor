@@ -94,7 +94,6 @@ class Client:
     def authenticate_packet(self, data: str, packet) -> str:
         decrypted_msg = self.decrypt_data(data)
         if decrypted_msg.startswith(self.flag_begin) and decrypted_msg.endswith(self.flag_close):
-            print(f"Received authenticated packet: {decrypted_msg}")
             return decrypted_msg
 
     def craft_packet(self, msg: str):
