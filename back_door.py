@@ -190,6 +190,7 @@ class BackDoor:
         print(f"dir  is {self.watch_file}")
 
     def watch_settings(self, path) -> tuple[str,str]:
+        print(path)
         file = path.split("/")[-1]
         dir = ""
         for i in range(len(path)-1, -1, -1):
