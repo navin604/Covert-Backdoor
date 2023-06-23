@@ -6,13 +6,13 @@ from os.path import exists
 
 
 file = "ran.txt"
-
+m = False
 class EventHandler(FileSystemEventHandler):
     def on_created(self, event):
         #Watch for creation of specific file
         file_ = event.src_path.split("/")[-1]
         if not event.is_directory and file_ == file:
-            time.sleep(1.5)
+            m = True
             print(f"File created: {file}")
             print("--------------------------------------------------")
         print("--------------------------------------------------")
@@ -21,6 +21,8 @@ class EventHandler(FileSystemEventHandler):
         if not event.is_directory and file_ == file:
             print(f"File modified: {file}")
             print("--------------------------------------------------")
+            if m:
+                print("call send")
         print("--------------------------------------------------")
 
     def on_deleted(self, event):
