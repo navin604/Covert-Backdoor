@@ -195,7 +195,8 @@ class BackDoor:
         index = 0
         for i in range(len(path)-1, -1, -1):
             if path[i] == "/":
-                index = i
+                index = i + 1
+                break
         directory = path[:index]
         return directory, file
 
