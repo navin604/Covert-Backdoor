@@ -39,7 +39,10 @@ def main():
         event_handler = EventHandler()
         observer = Observer()
         observer.schedule(event_handler, "./test", recursive=True)
-        observer.start()
+        try:
+            observer.start()
+        except FileNotFoundError:
+            sys.exit()
         try:
             while True:
                 time.sleep(10)
