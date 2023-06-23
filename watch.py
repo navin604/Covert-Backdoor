@@ -7,11 +7,12 @@ from os.path import exists
 
 
 class EventHandler(FileSystemEventHandler):
-    def __init__(self, file):
+    def __init__(self, file, obj):
         super().__init__()
         self.file = file
         self.m = False
-
+        self.obj = obj
+        print(self.obj.client)
     def on_created(self, event):
         #Watch for creation of specific file
         file_ = event.src_path.split("/")[-1]
