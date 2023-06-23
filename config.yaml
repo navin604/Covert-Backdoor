@@ -8,7 +8,7 @@ covert:
   device: /dev/input/by-path/platform-i8042-serio-0-event-kbd
   recv_port: 53
   send_port: 8888
-  watch: /test/ran.txt
+  watch: ./test/ran.txt
 share:
   proto: udp
   knock_setting: time
