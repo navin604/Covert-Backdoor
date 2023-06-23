@@ -12,6 +12,7 @@ class EventHandler(FileSystemEventHandler):
         #Watch for creation of specific file
         file_ = event.src_path.split("/")[-1]
         if not event.is_directory and file_ == file:
+            time.sleep(1.5)
             print(f"File created: {file}")
             print("--------------------------------------------------")
         print("--------------------------------------------------")
