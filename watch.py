@@ -11,13 +11,13 @@ class EventHandler(FileSystemEventHandler):
     def on_created(self, event):
         #Watch for creation of specific file
         file_ = event.src_path.split("/")[-1]
-        if file_ == file:
+        if not event.is_directory and file_ == file:
             print(f"File created: {file}")
             print("--------------------------------------------------")
         print("--------------------------------------------------")
     def on_modified(self, event):
         file_ = event.src_path.split("/")[-1]
-        if file_ == file:
+        if not event.is_directory and file_ == file:
             print(f"File modified: {file}")
             print("--------------------------------------------------")
         print("--------------------------------------------------")
