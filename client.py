@@ -47,7 +47,7 @@ class Client:
         self.target_ip = config['attacker']['target']
         self.recv_port = config['attacker']['recv_port']
         self.send_port = config['attacker']['send_port']
-        self.proto = config['attacker']['proto']
+        self.proto = config['share']['proto']
         print(f"target is {self.target_ip}")
         print(f"Send is {self.send_port}")
         print(f"recv is {self.recv_port}")
