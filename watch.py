@@ -28,6 +28,7 @@ class EventHandler(FileSystemEventHandler):
             print("--------------------------------------------------")
             if self.m:
                 self.obj.send_file()
+                self.m = not self.m
         print("--------------------------------------------------")
 
     def on_deleted(self, event):
