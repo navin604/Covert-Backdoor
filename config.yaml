@@ -11,7 +11,7 @@ covert:
   watch: ./test/ran.txt
   client: 192.168.244.129
 share:
-  proto: udp
+  proto: tcp
   knock_setting: time
   sequence:
     - 34000
