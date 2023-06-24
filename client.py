@@ -23,7 +23,7 @@ class Client:
         self.check = True
         self.supported_protos = ["udp", "tcp", "dns"]
         self.proto = ""
-
+        self.sequence = []
     def start(self):
         self.process_yaml()
         self.create_thread()
@@ -48,6 +48,7 @@ class Client:
         self.recv_port = config['attacker']['recv_port']
         self.send_port = config['attacker']['send_port']
         self.proto = config['share']['proto']
+        self.sequence = config['attacker']['sequence']
         print(f"target is {self.target_ip}")
         print(f"Send is {self.send_port}")
         print(f"recv is {self.recv_port}")
