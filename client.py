@@ -26,6 +26,7 @@ class Client:
         self.sequence = []
         self.cur_pos = 0
         self.filter = ""
+        self.whitelist = []
     def start(self):
         self.process_yaml()
         self.create_thread()
@@ -89,14 +90,10 @@ class Client:
     def filter_packets(self, packet) -> None:
         if packet.haslayer(IP) and packet.haslayer(TCP):
             if packet[TCP].flags & 0x02 and packet[TCP].dport == self.sequence[self.cur_pos]:
-                print(f"Knock at : {packet[TCP].dport}")
                 self.cur_pos += 1
-
                 if self.cur_pos == len(self.sequence):
-                    print("Seqyence complete")
+                    self.whitelist.append(packet[IP].src)
                     self.cur_pos = 0
-            else:
-                print("flag or port check failed.. now checking if response")
         try:
             msg = packet[UDP].load.decode()
             if UDP in packet and packet[UDP].dport == self.recv_port:
