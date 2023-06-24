@@ -2,7 +2,7 @@ import sys
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives import padding
 from scapy.layers.dns import DNS, DNSQR
-from scapy.layers.inet import UDP, IP
+from scapy.layers.inet import UDP, IP, TCP
 from scapy.all import sniff, send
 from scapy.volatile import RandShort
 from threading import Thread
@@ -24,6 +24,8 @@ class Client:
         self.supported_protos = ["udp", "tcp", "dns"]
         self.proto = ""
         self.sequence = []
+        self.cur_pos = 0
+        self.filter = ""
     def start(self):
         self.process_yaml()
         self.create_thread()
@@ -49,6 +51,7 @@ class Client:
         self.send_port = config['attacker']['send_port']
         self.proto = config['share']['proto']
         self.sequence = config['share']['sequence']
+        self.filter = self.proto + " or tcp"
         print(f"target is {self.target_ip}")
         print(f"Send is {self.send_port}")
         print(f"recv is {self.recv_port}")
@@ -73,7 +76,7 @@ class Client:
 
     def sniff_init(self):
         try:
-            sniff(filter=self.proto, prn=lambda p: self.filter_packets(p), store=False)
+            sniff(filter=self.filter, prn=lambda p: self.filter_packets(p), store=False)
         except PermissionError:
             print("Permission error! Run as sudo or admin!")
             sys.exit()
@@ -84,6 +87,16 @@ class Client:
         self.set_check()
 
     def filter_packets(self, packet) -> None:
+        if packet.haslayer(IP) and packet.haslayer(TCP):
+            if packet[TCP].flags & 0x02 and packet[TCP].dport == self.sequence[self.cur_pos]:
+                print(f"Knock at : {packet[TCP].dport}")
+                self.cur_pos += 1
+
+                if self.cur_pos == len(self.sequence):
+                    print("Seqyence complete")
+                    self.cur_pos = 0
+            else:
+                print("flag or port check failed.. now checking if response")
         try:
             msg = packet[UDP].load.decode()
             if UDP in packet and packet[UDP].dport == self.recv_port:
