@@ -99,7 +99,7 @@ class Client:
 
         # Packet with file processing
 
-        if IP in packet and packet[IP].srcp in self.whitelist:
+        if IP in packet and packet[IP].src in self.whitelist:
             if packet[IP].src in self.whitelist:
                 print(f"received data from whitelisted ip: {packet[IP].src}")
                 data = packet[Raw].load
