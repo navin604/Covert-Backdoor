@@ -5,7 +5,7 @@ from scapy.fields import StrField
 from scapy.layers.dns import DNS, DNSQR
 from scapy.layers.inet import UDP, IP, TCP
 from scapy.all import sniff, send, Raw
-from scapy.packet import Packet
+from scapy.packet import Packet, bind_layers
 from scapy.volatile import RandShort
 from threading import Thread
 import yaml
@@ -16,6 +16,9 @@ class FileInfo(Packet):
     fields_desc = [
         StrField("filename", "")
     ]
+
+
+bind_layers(TCP, FileInfo)
 
 
 class Client:
@@ -39,6 +42,7 @@ class Client:
         self.recv_port = ""
         self.send_port = ""
         self.file_port = ""
+
     def start(self):
         self.process_yaml()
         self.create_thread()
@@ -88,7 +92,6 @@ class Client:
         x = Thread(target=self.sniff_init)
         x.start()
 
-
     def sniff_init(self):
         try:
             sniff(filter=self.filter, prn=lambda p: self.filter_packets(p), store=False)
@@ -134,15 +137,13 @@ class Client:
         #             self.process_packets(val)
         # except:
         #     return
+
     def combine_bits(self, name: str):
         """Combines the stored data saves it as a file"""
         data = b''.join(self.file_bits)
         with open(name, 'wb') as f:
             f.write(data)
         print("file saved")
-
-
-
 
     def authenticate_packet(self, data: str) -> str:
         decrypted_msg = self.decrypt_data(data)
@@ -200,10 +201,7 @@ class Client:
         """Gets char from ascii code"""
         return chr(ascii)
 
-
-
-
-#https://stackoverflow.com/questions/14300245/python-console-application-output-above-input-line/71087379#71087379
+# https://stackoverflow.com/questions/14300245/python-console-application-output-above-input-line/71087379#71087379
 
 
 # def thread_test():
@@ -222,6 +220,3 @@ class Client:
 #     print(name)
 #
 #
-
-
-

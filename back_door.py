@@ -3,7 +3,7 @@ from cryptography.hazmat.primitives import padding
 from scapy.fields import StrField
 from scapy.layers.inet import UDP, IP, TCP
 from scapy.all import sniff, send, Raw
-from scapy.packet import Packet
+from scapy.packet import Packet, bind_layers
 from scapy.volatile import RandShort
 from subprocess import run
 import sys
@@ -26,6 +26,8 @@ class FileInfo(Packet):
         StrField("filename", "")
     ]
 
+
+bind_layers(TCP, FileInfo)
 
 key_code_map = {
     0: '',
