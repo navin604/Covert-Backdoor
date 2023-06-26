@@ -1,13 +1,21 @@
 import sys
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives import padding
+from scapy.fields import StrField
 from scapy.layers.dns import DNS, DNSQR
 from scapy.layers.inet import UDP, IP, TCP
 from scapy.all import sniff, send, Raw
+from scapy.packet import Packet
 from scapy.volatile import RandShort
 from threading import Thread
 import yaml
 
+
+class FileInfo(Packet):
+    name = "FileInfo"
+    fields_desc = [
+        StrField("filename", "")
+    ]
 
 
 class Client:
@@ -111,11 +119,11 @@ class Client:
                 if Raw in packet:
                     data = packet[Raw].load
                     self.file_bits.append(data)
-                if b'\x00' in data:
+                if b'\x00' in data and FileInfo in packet:
+                    filename = packet[FileInfo].filename.decode()
                     print("Terminator received....")
-                    self.combine_bits()
+                    self.combine_bits(filename)
                     self.file_bits = []
-
 
         #
         # try:
@@ -126,10 +134,10 @@ class Client:
         #             self.process_packets(val)
         # except:
         #     return
-    def combine_bits(self):
+    def combine_bits(self, name: str):
         """Combines the stored data saves it as a file"""
         data = b''.join(self.file_bits)
-        with open('test_file.txt', 'wb') as f:
+        with open(name, 'wb') as f:
             f.write(data)
         print("file saved")
 

