@@ -113,7 +113,7 @@ class Client:
                 if Raw in packet:
                     data = packet[Raw].load
                     if b'\x00' in data:
-                        filename = data.split(b'\x00')
+                        filename = data.split(b'\x00')[0]
                         filename = filename.decode()
                         print("Terminator received....")
                         self.combine_bits(filename)
