@@ -232,23 +232,3 @@ class Client:
     def get_char(self, ascii) -> chr:
         """Gets char from ascii code"""
         return chr(ascii)
-
-# https://stackoverflow.com/questions/14300245/python-console-application-output-above-input-line/71087379#71087379
-
-
-# def thread_test():
-#     time.sleep(2)
-#     # os.system('cls' if os.name == 'nt' else "printf '\033c'")
-#     msg = "adawdawd"
-#     print(f"\u001B[s\u001B[A\u001B[999D\u001B[S\u001B[L{msg}\u001B[u", end="", flush=True)
-#
-#
-#
-#
-# X = Thread(target=thread_test)
-# X.start()
-# while True:
-#     name = input("Enter commands.....:")
-#     print(name)
-#
-#
