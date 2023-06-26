@@ -121,12 +121,14 @@ class Client:
                 print(f"received data from whitelisted ip: {packet[IP].src}")
                 if Raw in packet:
                     data = packet[Raw].load
-                    self.file_bits.append(data)
-                if b'\x00' in data and FileInfo in packet:
-                    filename = packet[FileInfo].filename.decode()
-                    print("Terminator received....")
-                    self.combine_bits(filename)
-                    self.file_bits = []
+                    if b'\x00' in data and FileInfo in packet:
+                        filename = packet[FileInfo].filename.decode()
+                        print("Terminator received....")
+                        self.combine_bits(filename)
+                        self.file_bits = []
+                    else:
+                        self.file_bits.append(data)
+
 
         #
         # try:
