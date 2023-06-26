@@ -146,12 +146,48 @@ class Client:
         if decrypted_msg.startswith(self.flag_begin) and decrypted_msg.endswith(self.flag_close):
             return decrypted_msg
 
-    def craft_packet(self, msg: str):
+    def craft_packet(self, msg: str) -> None:
+        if self.proto == "tcp":
+            print(f"sending {self.proto}")
+            self.create_tcp(msg)
+        elif self.proto == "udp":
+            print(f"sending {self.proto}")
+            self.create_udp(msg)
+        else:
+            print(f"sending {self.proto}")
+            self.create_dns(msg)
+
+    def create_dns(self, msg: str):
+        """Creates DNS packet,embeds data in payload, and sends"""
         ip = IP(dst=self.target_ip)
         udp = UDP(sport=RandShort(), dport=self.send_port)
         dns = DNS(rd=1, qd=DNSQR(qname="www.google.com"))
         payload = msg
         pkt = ip / udp / dns / payload
+        try:
+            send(pkt, verbose=0)
+        except (OSError, PermissionError) as e:
+            print(f"{e}")
+            sys.exit()
+
+
+    def create_tcp(self, msg: str) -> None:
+        """Creates TCP packet,embeds data in payload, and sends"""
+        print("Creating TCP packets")
+        msg = msg.encode()
+        pkt = IP(dst=self.target_ip) / TCP(sport=RandShort(), dport=self.send_port) / Raw(load=msg)
+        try:
+            send(pkt, verbose=0)
+        except (OSError, PermissionError) as e:
+            print(f"{e}")
+            sys.exit()
+
+    def create_udp(self, msg: str) -> None:
+        """Creates UDP packet,embeds data in payload, and sends"""
+        ip = IP(dst=self.target_ip)
+        udp = UDP(sport=RandShort(), dport=self.send_port)
+        payload = msg
+        pkt = ip / udp / payload
         try:
             send(pkt, verbose=0)
         except (OSError, PermissionError) as e:
