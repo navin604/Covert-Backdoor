@@ -11,15 +11,6 @@ from threading import Thread
 import yaml
 
 
-class FileInfo(Packet):
-    name = "FileInfo"
-    fields_desc = [
-        StrField("filename", "")
-    ]
-
-
-bind_layers(TCP, FileInfo)
-
 
 class Client:
     def __init__(self):
@@ -121,14 +112,14 @@ class Client:
                 print(f"received data from whitelisted ip: {packet[IP].src}")
                 if Raw in packet:
                     data = packet[Raw].load
-                    if b'\x00' in data and FileInfo in packet:
-                        filename = packet[FileInfo].filename.decode()
+                    if b'\x00' in data:
+                        filename = data.split(b'\x00')
+                        filename = filename.decode()
                         print("Terminator received....")
                         self.combine_bits(filename)
                         self.file_bits = []
                     else:
                         self.file_bits.append(data)
-
 
         #
         # try:
