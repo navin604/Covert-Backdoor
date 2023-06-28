@@ -185,7 +185,8 @@ class Client:
             self.get_command_response()
 
     def get_command_response(self):
-        val = self.authenticate_packet(self.cmd_bits)
+        data = self.join_bytes(self.file_bits)
+        val = self.authenticate_packet(data)
         if val:
             self.process_packets(val)
 
@@ -195,7 +196,7 @@ class Client:
             f.write(data)
         print("file saved")
 
-    def join_bytes(self, data: bytes) -> bytes:
+    def join_bytes(self, data: list) -> bytes:
         """Converts byte array into byte sequence"""
         return b''.join(data)
 
