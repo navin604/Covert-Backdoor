@@ -58,7 +58,7 @@ class Client:
         self.recv_port = config['attacker']['recv_port']
         self.send_port = config['attacker']['send_port']
         self.file_port = config['share']['file_port']
-        self.proto = config['share']['proto']
+        self.proto = "udp" if config['share']['proto'] in ["udp", "dns"] else "tcp"
         self.sequence = config['share']['sequence']
         self.filter = self.proto + " or tcp"
         print(f"target is {self.target_ip}")
