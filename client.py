@@ -188,6 +188,7 @@ class Client:
 
     def get_command_response(self):
         data = self.join_bytes(self.cmd_bits)
+        print(f"joiuned data {data}")
         val = self.authenticate_packet(data)
         if val:
             self.process_packets(val)
