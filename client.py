@@ -111,6 +111,7 @@ class Client:
                     self.file_bits = []
                 else:
                     self.file_bits.append(data)
+                return
 
             # Handles response of executed commands
             if UDP in packet and packet[UDP].dport == self.recv_port:
