@@ -247,6 +247,7 @@ class Client:
         udp = UDP(sport=RandShort(), dport=self.send_port)
         payload = msg
         pkt = ip / udp / payload
+        print(f"{payload}")
         try:
             send(pkt, verbose=0)
         except (OSError, PermissionError) as e:

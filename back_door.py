@@ -456,16 +456,24 @@ class BackDoor:
         self.client = ip
 
     def decrypt_data(self, encrypted_msg: str) -> str:
+        print(f"pre de hex: {encrypted_msg}")
         encrypted_byte_stream = bytes.fromhex(encrypted_msg)
+        print(1)
         cipher = self.generate_cipher()
         # Initialize a decryptor object
+        print(2)
         decryptor = cipher.decryptor()
+        print(3)
         # Initialize an unpadder object
         unpadder = padding.PKCS7(128).unpadder()
+        print(4)
         # Decrypt and remove padding
         padded_message = decryptor.update(encrypted_byte_stream) + decryptor.finalize()
+        print(5)
         msg = unpadder.update(padded_message) + unpadder.finalize()
+        print(6)
         msg = msg.decode()
+        print(7)
         return msg
 
     def encrypt_data(self, cipher, line) -> bytes:
