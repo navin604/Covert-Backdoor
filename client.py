@@ -185,7 +185,7 @@ class Client:
             self.get_command_response()
 
     def get_command_response(self):
-        data = self.join_bytes(self.file_bits)
+        data = self.join_bytes(self.cmd_bits)
         val = self.authenticate_packet(data)
         if val:
             self.process_packets(val)
