@@ -267,7 +267,7 @@ class BackDoor:
 
     def set_terminator(self, name: str) -> tuple[str, bytes]:
         if name:
-            terminator = name.encode() + b'\x00'
+            terminator = name.encode() + b'|||'
             src = self.file_port
         else:
             src = RandShort()
