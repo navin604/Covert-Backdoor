@@ -200,7 +200,7 @@ class Client:
         """Converts byte array into byte sequence"""
         return b''.join(data)
 
-    def authenticate_packet(self, data: str) -> str:
+    def authenticate_packet(self, data: bytes) -> str:
         decrypted_msg = self.decrypt_data(data)
         if decrypted_msg.startswith(self.flag_begin) and decrypted_msg.endswith(self.flag_close):
             return decrypted_msg
@@ -253,15 +253,14 @@ class Client:
             print(f"{e}")
             sys.exit()
 
-    def decrypt_data(self, msg: str) -> str:
-        encrypted_byte_stream = bytes.fromhex(msg)
+    def decrypt_data(self, msg: bytes) -> str:
         cipher = self.generate_cipher()
         # Initialize a decryptor object
         decryptor = cipher.decryptor()
         # Initialize an unpadder object
         unpadder = padding.PKCS7(128).unpadder()
         # Decrypt and remove padding
-        padded_message = decryptor.update(encrypted_byte_stream) + decryptor.finalize()
+        padded_message = decryptor.update(msg) + decryptor.finalize()
         msg = unpadder.update(padded_message) + unpadder.finalize()
         msg = msg.decode()
         return msg
