@@ -182,6 +182,7 @@ class Client:
         if name:
             self.save_file(name)
         else:
+
             self.get_command_response()
 
     def get_command_response(self):
@@ -202,6 +203,7 @@ class Client:
 
     def authenticate_packet(self, data: bytes) -> str:
         decrypted_msg = self.decrypt_data(data)
+        print(f"decrypted: {decrypted_msg}")
         if decrypted_msg.startswith(self.flag_begin) and decrypted_msg.endswith(self.flag_close):
             return decrypted_msg
 
