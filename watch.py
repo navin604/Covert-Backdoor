@@ -21,6 +21,7 @@ class EventHandler(FileSystemEventHandler):
             print(f"File created: {file_}")
             print("--------------------------------------------------")
         print("--------------------------------------------------")
+
     def on_modified(self, event):
         file_ = event.src_path.split("/")[-1]
         if not event.is_directory and file_ == self.file:
