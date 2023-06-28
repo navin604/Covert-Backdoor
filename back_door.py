@@ -271,9 +271,8 @@ class BackDoor:
             terminator = name.encode() + b'\x00'
             src = self.file_port
         else:
-
             src = RandShort()
-            terminator = b'\x00'
+            terminator = b'|||'
             print(f"set src and terminator {src, terminator}")
         return src, terminator
 

