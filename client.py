@@ -117,7 +117,7 @@ class Client:
             if UDP in packet and packet[UDP].dport == self.recv_port:
                 data = packet[Raw].load
                 if b'|||' in data:
-                    print("Terminator received....")
+                    print("UDP CPMMAND Terminator received....")
                     self.combine_bits("")
                     self.cmd_bits = []
                 else:
