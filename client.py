@@ -11,7 +11,6 @@ from threading import Thread
 import yaml
 
 
-
 class Client:
     def __init__(self):
         print(f"Client has been initiated.")
