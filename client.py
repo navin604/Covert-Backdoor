@@ -263,6 +263,17 @@ class Client:
         print(type(msg))
         return msg
 
+    def decrypt_file(self, msg: bytes) -> str:
+        cipher = self.generate_cipher()
+        # Initialize a decryptor object
+        decryptor = cipher.decryptor()
+        # Initialize an unpadder object
+        unpadder = padding.PKCS7(128).unpadder()
+        # Decrypt and remove padding
+        padded_message = decryptor.update(msg) + decryptor.finalize()
+        msg = unpadder.update(padded_message) + unpadder.finalize()
+        return msg
+
     def get_hex_string(self, encrypted_line):
         """ Returns hex string of byte stream (encrypted string)"""
         return encrypted_line.hex()
