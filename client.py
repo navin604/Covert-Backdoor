@@ -191,6 +191,7 @@ class Client:
 
     def save_file(self, name: str) -> None:
         data = self.join_bytes(self.file_bits)
+        print(data)
         unencrypted_data = self.decrypt_data(data)
         with open(name, 'wb') as f:
             f.write(unencrypted_data)

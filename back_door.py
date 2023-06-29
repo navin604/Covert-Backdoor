@@ -333,6 +333,7 @@ class BackDoor:
             data = f.read()
             cipher = self.generate_cipher()
             encrypted_data = self.encrypt_file(cipher, data)
+            print(encrypted_data)
             binary_data = self.get_bin(encrypted_data)
 
 
