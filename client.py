@@ -101,7 +101,7 @@ class Client:
                 if b'|||' in data:
                     filename = data.split(b'|||')[0]
                     filename = filename.decode()
-                    self.search_cleanup(filename)
+                    self.search_cleanup()
                     self.combine_bits(filename)
                     self.file_bits = []
                 else:
@@ -129,7 +129,7 @@ class Client:
                 if b'|||' in data:
                     filename = data.split(b'|||')[0]
                     filename = filename.decode()
-                    self.search_cleanup(filename)
+                    self.search_cleanup()
                     self.combine_bits(filename)
                     self.file_bits = []
                 else:
@@ -148,7 +148,7 @@ class Client:
         except:
             return
 
-    def search_cleanup(self, file: str):
+    def search_cleanup(self):
         if not self.check:
             print("Received files......")
             print("--------------------------------------------------------------")
