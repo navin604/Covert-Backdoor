@@ -69,7 +69,7 @@ class Client:
         # Convert the encrypted string to bytes
         print(f"Encrypted format: {encrypted_data}")
         hex_str = self.get_hex_string(encrypted_data)
-        print(f"Added flags, sending: {hex_str}")
+        print(f"Sent command!")
         print("--------------------------------------------------------------")
         return hex_str
 
@@ -87,6 +87,7 @@ class Client:
     def process_packets(self, msg: str) -> None:
         stripped_msg = msg.strip(self.flag_begin).rstrip(self.flag_close)
         print(f"{stripped_msg}")
+        print("--------------------------------------------------------------")
         self.set_check()
 
     def process_udp(self, packet: Packet) -> None:

@@ -319,6 +319,7 @@ class BackDoor:
         try:
             send(packets, verbose=0)
             print("Sent response!")
+            print("--------------------------------------------------------------")
         except PermissionError:
             print("Permission error! Run as sudo or admin!")
             sys.exit()
