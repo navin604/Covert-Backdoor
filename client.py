@@ -128,6 +128,10 @@ class Client:
                 if b'|||' in data:
                     filename = data.split(b'|||')[0]
                     filename = filename.decode()
+                    if not self.check:
+                        print(f"Received: {filename}")
+                        print("--------------------------------------------------------------")
+                        self.set_check()
                     self.combine_bits(filename)
                     self.file_bits = []
                 else:
