@@ -61,12 +61,6 @@ class Client:
         self.proto = "udp" if config['share']['proto'] in ["udp", "dns"] else "tcp"
         self.sequence = config['share']['sequence']
         self.filter = self.proto + " or tcp"
-        print(f"target is {self.target_ip}")
-        print(f"Send is {self.send_port}")
-        print(f"recv is {self.recv_port}")
-        print(f"proto  is {self.proto}")
-        print(f"seqwuence  is {self.sequence}")
-        print(f"file port  is {self.file_port}")
 
     def prepare_msg(self, cmd: str) -> str:
         cipher = self.generate_cipher()
