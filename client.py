@@ -150,7 +150,7 @@ class Client:
 
     def search_cleanup(self, file: str):
         if not self.check:
-            print(f"Received: {file}")
+            print("Received files......")
             print("--------------------------------------------------------------")
             self.set_check()
 
