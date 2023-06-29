@@ -18,19 +18,16 @@ class EventHandler(FileSystemEventHandler):
         file_ = event.src_path.split("/")[-1]
         if not event.is_directory and file_ ==  self.file:
             self.m = True
-            print(f"File created: {file_}")
-            print("--------------------------------------------------")
-        print("--------------------------------------------------")
+
 
     def on_modified(self, event):
         file_ = event.src_path.split("/")[-1]
         if not event.is_directory and file_ == self.file:
-            print(f"File modified: {file_}")
-            print("--------------------------------------------------")
+            print(f"File Created: {file_}")
             if self.m:
                 self.obj.send_file()
                 self.m = not self.m
-        print("--------------------------------------------------")
+
 
     def on_deleted(self, event):
         print(f"{event.src_path} has been deleted!")
