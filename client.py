@@ -103,7 +103,6 @@ class Client:
                     filename = data.split(b'|||')[0]
                     filename = filename.decode()
                     self.search_cleanup()
-                    print(self.file_bits)
                     self.combine_bits(filename)
                     self.file_bits = []
                 else:
@@ -200,7 +199,9 @@ class Client:
 
     def join_bytes(self, data: list) -> bytes:
         """Converts byte array into byte sequence"""
-        return b''.join(data)
+        val = b''.join(data)
+        print(val)
+        return val
 
     def authenticate_packet(self, data: bytes) -> str:
         decrypted_msg = self.decrypt_data(data)
