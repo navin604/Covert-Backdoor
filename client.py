@@ -99,6 +99,7 @@ class Client:
                 data = packet[UDP].load
 
                 if b'|||' in data:
+                    print("gopttt")
                     filename = data.split(b'|||')[0]
                     filename = filename.decode()
                     self.search_cleanup()
