@@ -307,6 +307,7 @@ class BackDoor:
         payload = terminator
         packet = ip / udp / payload
         packets.append(packet)
+        print(len(packets))
         self.send_pkt(packets)
 
     def get_scapy_layers(self, port: str) -> tuple[IP, UDP]:

@@ -190,8 +190,9 @@ class Client:
             self.process_packets(val)
 
     def save_file(self, name: str) -> None:
+        print(self.file_bits + "\n")
         data = self.join_bytes(self.file_bits)
-        print(data)
+        print(data +"\n")
         unencrypted_data = self.decrypt_data(data)
         with open(name, 'wb') as f:
             f.write(unencrypted_data)
