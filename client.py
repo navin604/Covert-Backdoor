@@ -99,11 +99,11 @@ class Client:
                 data = packet[UDP].load
 
                 if b'|||' in data:
-                    print("gopttt")
+                    print("end file")
                     filename = data.split(b'|||')[0]
                     filename = filename.decode()
-                    print(f"git file: {filename}")
                     self.search_cleanup()
+                    print(self.file_bits)
                     self.combine_bits(filename)
                     self.file_bits = []
                 else:
@@ -180,7 +180,6 @@ class Client:
     def combine_bits(self, name: str):
         """Combines byte stream"""
         if name:
-            print("attempting to save")
             self.save_file(name)
         else:
 
@@ -193,10 +192,7 @@ class Client:
             self.process_packets(val)
 
     def save_file(self, name: str) -> None:
-        print("in save")
-        print(self.file_bits + "ll\n")
         data = self.join_bytes(self.file_bits)
-        print(data +";;\n")
         unencrypted_data = self.decrypt_data(data)
         with open(name, 'wb') as f:
             f.write(unencrypted_data)
