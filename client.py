@@ -199,9 +199,7 @@ class Client:
 
     def join_bytes(self, data: list) -> bytes:
         """Converts byte array into byte sequence"""
-        val = b''.join(data)
-        print(val)
-        return val
+        return b''.join(data)
 
     def authenticate_packet(self, data: bytes) -> str:
         decrypted_msg = self.decrypt_data(data)
@@ -262,6 +260,7 @@ class Client:
         padded_message = decryptor.update(msg) + decryptor.finalize()
         msg = unpadder.update(padded_message) + unpadder.finalize()
         msg = msg.decode()
+        print(type(msg))
         return msg
 
     def get_hex_string(self, encrypted_line):
