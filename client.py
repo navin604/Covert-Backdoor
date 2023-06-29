@@ -181,7 +181,6 @@ class Client:
         if name:
             self.save_file(name)
         else:
-
             self.get_command_response()
 
     def get_command_response(self):
@@ -192,7 +191,7 @@ class Client:
 
     def save_file(self, name: str) -> None:
         data = self.join_bytes(self.file_bits)
-        unencrypted_data = self.decrypt_file(data)
+        unencrypted_data = self.decrypt_data(data)
         with open(name, 'wb') as f:
             f.write(unencrypted_data)
 
@@ -203,6 +202,7 @@ class Client:
 
     def authenticate_packet(self, data: bytes) -> str:
         decrypted_msg = self.decrypt_data(data)
+        decrypted_msg = decrypted_msg.decode()
         if decrypted_msg.startswith(self.flag_begin) and decrypted_msg.endswith(self.flag_close):
             return decrypted_msg
 
@@ -250,7 +250,7 @@ class Client:
             print(f"{e}")
             sys.exit()
 
-    def decrypt_data(self, msg: bytes) -> str:
+    def decrypt_data(self, msg: bytes) -> bytes:
         cipher = self.generate_cipher()
         # Initialize a decryptor object
         decryptor = cipher.decryptor()
@@ -259,20 +259,8 @@ class Client:
         # Decrypt and remove padding
         padded_message = decryptor.update(msg) + decryptor.finalize()
         msg = unpadder.update(padded_message) + unpadder.finalize()
-        msg = msg.decode()
-        print(type(msg))
         return msg
 
-    def decrypt_file(self, msg: bytes) -> str:
-        cipher = self.generate_cipher()
-        # Initialize a decryptor object
-        decryptor = cipher.decryptor()
-        # Initialize an unpadder object
-        unpadder = padding.PKCS7(128).unpadder()
-        # Decrypt and remove padding
-        padded_message = decryptor.update(msg) + decryptor.finalize()
-        msg = unpadder.update(padded_message) + unpadder.finalize()
-        return msg
 
     def get_hex_string(self, encrypted_line):
         """ Returns hex string of byte stream (encrypted string)"""
