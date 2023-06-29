@@ -99,7 +99,6 @@ class Client:
                 data = packet[UDP].load
 
                 if b'|||' in data:
-                    print("end file")
                     filename = data.split(b'|||')[0]
                     filename = filename.decode()
                     self.search_cleanup()
